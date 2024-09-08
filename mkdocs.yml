@@ -4,7 +4,8 @@ site_name: winsonYe
 nav:
   - Home: index.md
   - 开发: 
-    - 后台开发: backend.md
-  - 算法题: algorithm.md
+    - 后台开发: 开发/backend.md
+  - 算法题: 
+    - 算法基础: 算法题/algorithm.md
   - About: about.md
 
