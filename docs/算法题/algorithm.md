@@ -294,26 +294,35 @@ int main(){
 
 #### 多重背包问题
 
+> 模板题：
+>
+> - 不限时版：https://www.acwing.com/problem/content/4/
+> - 限时版：https://www.acwing.com/problem/content/5/
+
+**特性：**每个物品最多选择s[i]件
+
 ##### 朴素版
+
+最基础的想法：枚举物品选择的件数k
 
 ```c++
 #include <iostream>
 using namespace std;
 
-const int N = 110;
+const int N = 1010, V = 1010;
+int f[N][V];
 int v[N], w[N], s[N];
-int f[N][N];
 
 int main(){
-    int n,m;
+    int n, m;
     cin >> n >> m;
-    for(int i = 1;i <= n;i++){
+    for(int i = 1; i <= n; i++){
         cin >> v[i] >> w[i] >> s[i];
     }
-    for(int i = 1;i <= n;i++){
-        for(int j = 0;j <= m;j++){
-            for(int k = 0;k <= s[i]&&k*v[i]<=j;k++){
-                f[i][j] = max(f[i][j],f[i-1][j-k*v[i]]+k*w[i]);
+    for(int i = 1; i <= n; i++){
+        for(int j = 0; j <= m; j++){
+            for(int k = 0; k <= s[i] && k * v[i] <= j; k++){
+                f[i][j] = max(f[i][j], f[i - 1][j - k * v[i]] + k * w[i]);
             }
         }
     }
@@ -322,39 +331,125 @@ int main(){
 }
 ```
 
+**时间复杂度：**$O(NVs)\approx O(n^3)$
+
+**空间复杂度：**$O(NV)\approx O(n^2)$
+
+
+
 ##### 优化版
+
+与完全背包问题不同，多重背包多了一项，因此不能采用完全背包问题的做法
+
+```
+f[i][j] 
+= max(f[i - 1][j], f[i - 1][j - v[i]] + w[i], f[i - 1][j - 2 * v[i]] + 2 * w[i],f[i - 1][j - 3 * v[i]] + 2 * w[i]， ..., f[i - 1][j - k * v[i]] + k * w[i]     ,..., f[i - 1][j - s[i] * v[i]] + s[i] * w[i])
+
+f[i][j - v[i]] 
+= max(             f[i - 1][j - v[i]]       , f[i - 1][j - 2 * v[i]] + w[i],     f[i - 1][j - 3 * v[i]] + 2 * w[i], ..., f[i - 1][j - (k + 1) * v[i]] + k * w[i],..., f[i - 1][j - s[i] * v[i]] + (s[i] - 1) * w[i], f[i - 1][j - (s[i] + 1) * v[i]] + s[i] * w[i])
+
+与01背包不同，不能再写成：
+f[i][j] 
+= max(f[i - 1][j], f[i][j - v[i]] + w[i])
+
+因为f[i][j - v[i]]比f[i][j]多了一项f[i - 1][j - (s[i] + 1) * v[i]] + s[i] * w[i]，多出来的一项记作d
+所以f[i][j - v[i]] = max(B, d)， B为d前面若干项
+
+f[i][j] = max(f[i - 1][j], f[i][j - v[i]] + w[i])
+f[i][j - v[i]] = max(B , d)
+-> f[i][j] = max(f[i - 1][j], max(B , d) + w[i])
+无法计算B，因此这种方法不可取
+```
+
+
+
+> 回顾多重背包朴素版解法存在的问题：需要枚举每个物品的件数，而且这一步不能像完全背包问题那样优化，导致时间复杂度过高
+>
+> 而01背包不需要枚举每个物品的件数，因为物品最多只有1件
+>
+> 我们能否将多重背包问题转换为01背包问题？
+
+优化版采用二进制分组表示法，将物品的件数k分解为若干个二进制组，那么枚举k变成了枚举每个组是否需要
+
+因此多重背包问题转换为了01背包问题的解法
+
+接下来我们看如何将k转换为二进制组
+
+**优化解法**
+
+理论前提：
+
+- 任何数都能由二进制1，2，4，8，...，表示，例如$11=(1011)_2=8+0+2+1$
+
+根据该前提，我们得出物品的件数s也能由二进制表示，枚举物品件数变成了枚举二进制组的个数
+
+时间复杂度由$O(n^3)$缩减为$O(n^2log(s))$，s为物品的件数，$log(s)$为二进制组的个数
+
+
+
+`f[i][j]`状态数$i$由$n$个变成$n*log_2(s)$
+
+log2可这么求
+
+```c++
+#include <cmath>
+using namespace std;
+
+int main(){
+  	int n;
+		cin >> n;
+  	cout << log2(n) << endl;
+}
+```
+
+实际代码中，我们直接将求得log2结果与物品数上限N相乘得到新的N，这个N表示总状态数上限
 
 ```c++
 #include <iostream>
 using namespace std;
 
-const int N = 12010, V = 2010;
-int v[N], w[N], s[N];
+const int N = 11010, V = 2010;
+int v[N], w[N];
 int f[V];
 
 int main(){
-    int n,m,cnt=0;
+    int n, m;
     cin >> n >> m;
-    for(int i = 1;i <= n;i++){
+    // cnt为分组序数
+    // cnt一定要放在循环外面，因为cnt是所有分组的序号
+    int cnt = 0;
+    // 对每个物品进行二进制组分组
+    for(int i = 1; i <= n; i++){
         int a, b, s;
+        // a为v[i], b为w[i], s为s[i]
         cin >> a >> b >> s;
+        // k为分组内数量
         int k = 1;
-        while(k<=s){
-            cnt ++;
-            v[cnt] = a*k;
-            w[cnt] = b*k;
+        // 对s进行分二进制组
+        while(k <= s){
+            // 第cnt个组含有k个件数
+            cnt++;
+            // 计算第cnt个组的体积，每件物品体积相同，都为a
+            v[cnt] = a * k;
+            // 计算第cnt个组的价值，每件物品价值相同，都为b
+            w[cnt] = b * k;
             s -= k;
             k *= 2;
         }
-        if(s>0){
+        // 剩余的s不能继续分为二进制组
+        if(s > 0){
             cnt++;
-            v[cnt] = a*s;
-            w[cnt] = b*s;
+            v[cnt] = a * s;
+            w[cnt] = b * s;
         }
     }
-    for(int i = 1;i <= cnt;i++){
-        for(int j = m;j >= v[i];j--){
-            f[j] = max(f[j],f[j-v[i]]+w[i]);
+    
+    // 状态数由 n 变成了 n * log2(n)
+    n = cnt;
+    // 01背包问题
+    for(int i = 1; i <= n; i++){
+        for(int j = m; j >= v[i]; j--){
+            f[j] = max(f[j], f[j - v[i]] + w[i]);
         }
     }
     
@@ -366,28 +461,45 @@ int main(){
 
 #### 分组背包问题
 
+> 模板题：https://www.acwing.com/problem/content/9/
+
+**特性：**每组物品有若干个，同一组内的物品最多只能选一个。
+
+由选择某个物品变成了两步：
+
+1. 首先选择分组
+2. 选择了分组之后要在组内选择一个物品
+
+即进行两次01背包问题，第一次01背包问题将物品当成组，第二次在组内进行01背包问题
+
+##### 朴素版
+
 ```c++
 #include <iostream>
 using namespace std;
 
-const int N = 110;
-int v[N][N],w[N][N],s[N];
-int f[N][N];
+const int N = 110, V = 110, S = 110;
+int v[N][S], w[N][S], s[N];
+int f[N][V];
 
+// i表示第i组，k表示第i组内的第k件物品，j表示背包容积
 int main(){
     int n, m;
     cin >> n >> m;
-    for(int i = 1;i <= n;i++){
+    for(int i = 1; i <= n; i++){
         cin >> s[i];
-        for(int j = 1;j <= s[i];j++){
-            cin >> v[i][j] >> w[i][j];
-        }
+        for(int k = 1; k <= s[i]; k++)
+            cin >> v[i][k] >> w[i][k];
     }
-    for(int i = 1;i <= n;i++){
-        for(int j = 0;j <= m;j++){
-            f[i][j] = f[i-1][j];
-            for(int k = 1;k <= s[i];k++){
-                if(j>=v[i][k]) f[i][j] = max(f[i][j],f[i-1][j-v[i][k]]+w[i][k]);
+    
+    for(int i = 1; i <= n; i ++){
+        for(int j = 0; j <= m; j++){
+            f[i][j] = f[i - 1][j];
+            // 枚举背包内的每个物品
+            for(int k = 1; k <= s[i]; k++){
+                // 注意这里的v[i][k]和w[i][k]，而不是v[i][j]和w[i][j]
+                if(v[i][k] <= j)
+                    f[i][j] = max(f[i][j], f[i - 1][j - v[i][k]] + w[i][k]);
             }
         }
     }
@@ -395,6 +507,50 @@ int main(){
     cout << f[n][m] << endl;
 }
 ```
+
+##### 优化版
+
+与01背包问题优化思路完全一致
+
+```c++
+#include <iostream>
+using namespace std;
+
+const int N = 110, V = 110, S = 110;
+int v[N][S], w[N][S], s[N];
+int f[V];
+
+// i表示第i组，k表示第i组内的第k件物品，j表示背包容积
+int main(){
+    int n, m;
+    cin >> n >> m;
+    for(int i = 1; i <= n; i++){
+        cin >> s[i];
+        for(int k = 1; k <= s[i]; k++)
+            cin >> v[i][k] >> w[i][k];
+    }
+    
+    for(int i = 1; i <= n; i ++){
+        // 枚举背包内的每个物品
+        for(int j = m; j >= 0; j--){
+            for(int k = 1; k <= s[i]; k++){
+                if(v[i][k] <= j)
+                    // 注意这里的v[i][k]和w[i][k]，而不是v[i][j]和w[i][j]
+                    f[j] = max(f[j], f[j - v[i][k]] + w[i][k]);
+            }
+        }
+        
+    }
+    
+    cout << f[m] << endl;
+}
+```
+
+
+
+### 线性DP
+
+
 
 ## 小技巧
 
