@@ -1,5 +1,59 @@
 # 算法基础
 
+## 二分查找
+
+#### 查找大于等于x 的第一个数
+
+a[mid] >= target说明要寻找的数在[l, mid]中
+
+a[mid] < target说明要寻找的数在(mid, n - 1]中
+
+```C++
+// 区间[l, r]被划分成[l, mid]和[mid + 1, r]时使用：
+int bsearch_1(int l, int r)
+{
+    while (l < r)
+    {
+        int mid = l + r >> 1;
+        if (a[mid] < target) l = mid + 1;    // check()判断mid是否满足性质
+        else r = mid ;
+    }
+    return l;
+}
+```
+
+#### 查找小于等于x 的最后一个数
+
+a[mid] >= target说明要寻找的数在[l, mid]中
+
+a[mid] < target说明要寻找的数在(mid, n - 1]中
+
+```C++
+// 区间[l, r]被划分成[l, mid - 1]和[mid, r]时使用：
+int bsearch_2(int l, int r)
+{
+    while (l < r)
+    {
+        int mid = l + r + 1 >> 1;
+        if (a[mid] > target) r = mid - 1;
+        else l = mid;
+    }
+    return l;
+}
+```
+
+#### 记忆口诀
+
+大于等于x：
+
+- r = mid
+- 因为是大于，所以l 是 mid + 1
+
+小于等于x：
+
+- l = mid
+- 因为是小于，所以r 是mid - 1
+
 ## 动态规划
 
 动态规划可根据以下两个维度思考：
@@ -550,6 +604,228 @@ int main(){
 
 ### 线性DP
 
+线性DP即递推方程具有明显的线性关系，有一维线性和二维线性
+
+背包问题也属于线性DP
+
+#### 数字三角形
+
+> https://www.acwing.com/problem/content/900/
+
+`f[i][j]`表示走到第i行第j列的元素的路径之和
+
+##### 朴素版
+
+从上往下遍历
+
+状态方程`f[i][j] += max(f[i - 1][j - 1], f[i - 1][j])`
+
+```C++
+#include <iostream>
+using namespace std;
+
+// 三角形的整数可以为负数，要取max，因此边界值为负无穷（-INF）
+const int N = 510, INF = 0x3f3f3f3f;
+// 状态表达式，到达第i行第j列的元素时所有路径的集合，对应的值为路径数字之和最大值
+int f[N][N];
+int n;
+
+int main(){
+    cin >> n;
+    // 处理边界条件
+    for(int i = 0; i <= n; i++)
+        //注意是 i + 1
+        for(int j = 0; j <= i + 1; j++)
+            f[i][j] = -INF;
+    // 输入三角形
+    for(int i = 1; i <= n; i++)
+        for(int j = 1; j <= i; j++)
+            cin >> f[i][j];
+    // 从第二行开始计算状态方程
+    for(int i = 2; i <= n; i++){
+        for(int j = 1; j <= i; j++){
+            f[i][j] += max(f[i - 1][j - 1], f[i - 1][j]);
+        }
+    }
+    
+    // 这里res一定要设置为负无穷，因为数字之和可能为负数
+    int res = -INF;
+    // 遍历三角形底层取得最大值
+    for(int j = 1; j <= n; j++)
+        res = max(res, f[n][j]);
+    
+    cout << res << endl;
+}
+```
+
+**时间复杂度：**$O(n^2)$
+
+**空间复杂度：**$O(n^2)$
+
+缺点是需要处理边界条件
+
+##### 优化版
+
+从下往上遍历
+
+优化点：由于最终汇聚于一点，因此少了一次for循环，并且不需要处理边界条件
+
+```C++
+#include <iostream>
+using namespace std;
+
+const int N = 510;
+int f[N][N];
+int n;
+
+int main(){
+    cin >> n;
+    for(int i = 1; i <= n; i++)
+        // 这里注意是j <= i 而不是j <= n
+        for(int j = 1; j <= i; j++)
+            cin >> f[i][j];
+    for(int i = n; i >= 1; i--){
+        for(int j = n; j >= 1; j--){
+            f[i][j] += max(f[i + 1][j], f[i + 1][j + 1]);
+        }
+    }
+    
+    cout << f[1][1] << endl;
+}
+```
+
+**时间复杂度：**$O(n^2)$
+
+**空间复杂度：**$O(n^2)$
+
+#### 最长上升子序列
+
+##### 朴素版
+
+```C++
+#include <iostream>
+using namespace std;
+
+const int N = 1010;
+
+// 状态表达式，f[i]表示第i个元素结尾的所有单调递增子序列的集合
+// f[i]的值表示这些集合的序列最长度
+int f[N];
+// 存储序列
+int a[N];
+int n;
+
+int main(){
+    cin >> n;
+    for(int i = 1; i <= n; i++)
+        cin >> a[i];
+    // res用于获取每个元素结尾的最大单调递增子序列长度
+    int res = 1;
+    for(int i = 1; i <= n; i++){
+        f[i] = 1;
+        // 遍历前j个元素，每个元素结尾的最大单调递增子序列长度为f[j]
+        for(int j = 1; j < i; j++){
+            // 如果第i个元素比第j个元素大，说明第i个元素可以加入该递增子序列，则长度加1
+            if(a[i] > a[j]) f[i] = max(f[i], f[j] + 1);
+        }
+        res = max(res, f[i]);
+    }
+    
+    cout << res << endl;
+}
+```
+
+**时间复杂度：**$O(n^2)$
+
+**空间复杂度：**$O(n)$
+
+
+
+##### 优化版
+
+动态规划 + 二分查找
+
+```C++
+#include <iostream>
+using namespace std;
+
+const int N = 1010;
+// tails[i]记录序列尾部元素, len表示当前序列的长度
+int tails[N], len;
+int a[N];
+int n;
+
+int main(){
+    cin >> n;
+    for(int i = 1; i <= n; i++)
+        cin >> a[i];
+    // 初始化tails
+    tails[++len] = a[1];
+    // 从第二个元素开始遍历
+    for(int i = 2; i <= n; i++){
+        // 如果当前元素比序列尾部元素大，说明该元素可直接纳入该序列，序列长度加一
+        if(a[i] > tails[len]) 
+            tails[++len] = a[i];
+        // 如果当前元素比序列尾部元素小，根据元素之间差距越小序列长度越可能长的原理
+        // 找到序列中比当前元素大的第一个元素，将其取代为当前元素a[i]
+        // 序列长度不变
+        else{
+            int l = 1, r = len;
+            while(l < r){
+                int mid = (l + r) >> 1;
+                if(tails[mid] >= a[i]) 
+                    r = mid;
+                else 
+                    l = mid + 1;
+            }
+            tails[l] = a[i];
+        }
+    }
+    // 最后输出len，len为最长子序列长度
+    cout << len << endl;
+}
+```
+
+**时间复杂度：**$O(nlog(n))$
+
+**空间复杂度：**$O(n)$
+
+#### 最长公共子序列
+
+##### 朴素版
+
+题解详见：https://www.acwing.com/solution/content/8111/
+
+```C++
+#include <iostream>
+using namespace std;
+
+const int N = 1010, M = 1010;
+int f[N][M];
+int n, m;
+char a[N], b[M];
+
+int main(){
+    cin >> n >> m >> a + 1 >> b + 1;
+    for(int i = 1; i <= n; i++){
+        for(int j = 1; j <= m; j++){
+            f[i][j] = max(f[i - 1][j], f[i][j - 1]);
+            if(a[i] == b[j]) f[i][j] = max(f[i][j], f[i - 1][j - 1] + 1);
+        }
+    }
+    
+    cout << f[n][m] << endl;
+}
+```
+
+## 区间DP
+
+https://www.acwing.com/problem/content/284/
+
+```
+
+```
+
 
 
 ## 小技巧
@@ -578,3 +854,9 @@ void *memset(void *str, int c, size_t n)
 一般设置无穷大为INF=0x3f3f3f3f
 
 初始化为无穷大：memset(a,0x3f,sizeof(a))
+
+## STL容器
+
+### 优先级队列
+
+https://blog.csdn.net/weixin_36888577/article/details/79937886
