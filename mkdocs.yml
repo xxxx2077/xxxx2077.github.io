@@ -7,5 +7,6 @@ nav:
     - 后台开发: 开发/backend.md
   - 算法题: 
     - 算法基础: 算法题/algorithm.md
+    - leetcode: 算法题/leetcode.md
   - About: about.md
 
