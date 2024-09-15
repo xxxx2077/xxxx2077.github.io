@@ -4,9 +4,11 @@ site_name: winsonYe
 nav:
   - Home: index.md
   - 开发: 
-    - 后台开发: 开发/backend.md
+    # - 前端开发: - software_development/frontend/frontend.md
+    - 后端开发: 
+      - 面经: software_development/backend/interview_experiences.md
   - 算法题: 
-    - 算法基础: 算法题/algorithm.md
-    - leetcode刷题笔记: 算法题/leetcode.md
+    - 算法基础: algorithm/algorithm_basic.md
+    - leetcode刷题笔记: algorithm/leetcode.md
   - About: about.md
 
