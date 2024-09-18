@@ -305,6 +305,83 @@ public:
 
 
 
+## 45 跳跃游戏II
+
+```C++
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        int n = nums.size();
+        int start = 0, end = start + 1;
+        int ans = 0;
+        while(end < n){
+            int nextStep;
+            for(int i = start; i < end; i++){
+                nextStep = max(nextStep, i + nums[i]);
+            }
+            ans++;
+            start = end;
+            end = nextStep + 1;
+        }
+        return ans;
+    }
+};
+```
+
+优化版
+
+```C++
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        int n = nums.size();
+        // end为边界下标，当前i能遍历的最大下标值
+        int end = 0;
+        int nextStep = 0;
+        int ans = 0;
+        // 问到nums[n - 1]需要的最小跳跃次数，因此不需要计算第n - 1个
+        for(int i = 0; i < n; i++){
+            nextStep = max(nextStep, i + nums[i]);
+            if(i == end){
+                ans++;
+                end = nextStep;
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
+## 55 跳跃游戏
+
+维护最大可达位置nextStep
+
+如果当前位置i <= nextStep，说明当前位置i可达，可跳到当前位置i上，更新最大可达位置
+
+如果最大可达位置比n - 1大，说明能够到达n - 1
+
+```C++
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int n = nums.size();
+        int nextStep = 0;
+        for(int i = 0; i < n; i++){
+            if(i <= nextStep){
+                nextStep = max(nextStep, i + nums[i]);
+                if(nextStep >= n - 1)
+                    return true;
+            }
+        }
+        return false;
+    }
+};
+```
+
+
+
 ## 70 爬楼梯
 
 https://leetcode.cn/problems/climbing-stairs/description/
@@ -779,6 +856,26 @@ public:
 };
 ```
 
+## 121 买卖股票的最佳时机
+
+贪心：找出最低的价格买入，找出最高的价格买出
+
+```C++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int cost = INT_MAX, profit = 0;
+        for(int i = 0;i < prices.size(); i++){
+            cost = min(cost, prices[i]);
+            profit = max(profit, prices[i] - cost);
+        }
+        return profit;
+    }
+};
+```
+
+
+
 ## 200 岛屿数量
 
 > 题解中这里修改了原数组，大家如果面试的时候，要问清楚面试官是否能修改原数组，不能的话就得加入标记数组，不要一给题就直接上手
@@ -1216,6 +1313,39 @@ public:
 };
 ```
 
+## 279 完全平方数
+
+思路：
+
+题目要求和为i的完全平方数最小数量
+
+假设选择了j (j <= i)，那么接下来要找的就是和为i - j*j的完全平方数最小数量
+
+可以看出，这是一个状态递推式，可以使用动态规划
+
+f[i - j* j]下标比f[i]小，所以可以从小到大遍历
+
+```C++
+class Solution {
+public:
+    int numSquares(int n) {
+        // dp[i]表示和为i的完全平方数的最少数量
+        // dp[0] = 0
+        vector<int> dp(n + 1, 0);
+        for(int i = 1; i <= n; i++){
+            // 枚举完全平方数
+            dp[i] = INT_MAX;
+            for(int j = 1; j * j <=i; j++){
+                dp[i] = min(dp[i],1 + dp[i - j * j]);
+            }
+        }
+        return dp[n];
+    }
+};
+```
+
+
+
 ## 503 下一个更大元素II
 
 https://leetcode.cn/problems/next-greater-element-ii/description/
@@ -1458,6 +1588,41 @@ public:
 时间复杂度：O(n)，其中 n 是温度列表的长度。正向遍历温度列表一遍，对于温度列表中的每个下标，最多有一次进栈和出栈的操作。
 
 空间复杂度：O(n)，其中 n 是温度列表的长度。需要维护一个单调栈存储温度列表中的下标。
+
+## 763 划分字母区间
+
+```C++
+class Solution {
+public:
+    vector<int> partitionLabels(string s) {
+        int n = s.size();
+        int last[26];
+        vector<int> res;
+        // 统计每个字符最后出现的下标
+        for(int i = 0; i < n; i++){
+            last[s[i] - 'a'] = i;
+        }
+        // start为区间开始点，end为区间结束点
+        // end一定为某区间内所有last[j]的最大值
+        int start = 0, end = 0;
+        for(int i = 0; i < n; i++){
+            end = max(end, last[s[i] - 'a']);
+            // i == end 说明区间终点end已确定 且已遍历到区间终点end
+            if(i == end){
+                res.push_back(end - start + 1);
+                start = end + 1;
+            }
+        }
+        return res;
+    }
+};
+```
+
+复杂度分析
+
+时间复杂度：O(n)，其中 n 是字符串的长度。需要遍历字符串两次，第一次遍历时记录每个字母最后一次出现的下标位置，第二次遍历时进行字符串的划分。
+
+空间复杂度：O(∣Σ∣)，其中 Σ 是字符串中的字符集。这道题中，字符串只包含小写字母，因此 ∣Σ∣=26。
 
 ## 刷题总结
 
