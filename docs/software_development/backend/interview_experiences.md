@@ -1,5 +1,29 @@
 # 面经
 
+## 腾讯会议暑期实习
+
+GET和POST的区别？
+
+TCP三次握手过程？
+
+进程间通信方式？
+
+调度算法有哪几种？
+
+进程和线程的区别？
+
+常用的Linux命令？
+
+MySQL隔离级别有哪些？举个例子说明
+
+ES倒排索引？看过源码吗？
+
+你项目说的那个OrderDict（我项目中使用了LRU算法，通过Python的OrderDict实现）是如何实现的？
+
+[python实现LRU算法_lru python-CSDN博客](https://blog.csdn.net/hhs_1996/article/details/119876521)
+
+微信扫码登录的过程？
+
 ## 美团AI面
 
 cookie和session的区别？
