@@ -874,6 +874,102 @@ public:
 };
 ```
 
+## 141 环形链表
+
+根据题意：一个节点没有环
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        if(head == nullptr || head->next == nullptr)
+            return false;
+        ListNode* fast = head, *slow = head;
+        while(true){
+            if(fast == nullptr || fast->next == nullptr)
+                return false;
+            fast = fast->next->next;
+            slow = slow->next;
+          	if(fast == slow) 
+              	break;
+        }
+        return true;
+    }
+};
+```
+
+## 142 环形链表II
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        if(head == nullptr || head->next == nullptr)
+            return nullptr;
+        ListNode* fast = head, *slow = head;
+        while(true){
+            if(fast == nullptr || fast->next == nullptr)
+                return nullptr;
+            fast = fast->next->next;
+            slow = slow->next;
+            if(fast == slow)    break;
+        }
+        fast = head;
+        while(slow != fast){
+            fast = fast->next;
+            slow = slow->next;
+        }
+        return fast;
+    }
+};
+```
+
+
+
+## 160 相交链表
+
+https://leetcode.cn/problems/intersection-of-two-linked-lists/?envType=study-plan-v2&envId=top-100-liked
+
+拼接链表A和链表B，拼接后，两个链表同时开始往尾部遍历，
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode* a = headA, *b = headB;
+        while(a != b){
+            a = a != nullptr ? a->next : headB;
+            b = b != nullptr ? b->next : headA;
+        }
+        return a;
+    }
+};
+```
+
 
 
 ## 200 岛屿数量
@@ -1055,6 +1151,75 @@ public:
 空间复杂度：O(MN)，这是并查集需要使用的空间。
 
 > 我没有使用按秩合并
+
+## 206 反转链表
+
+### 迭代版
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* cur = head;
+        while(cur){
+            ListNode* next = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = next;
+        }
+      	// cur指向nullptr, prev指向原链表最后一个元素（新链表头节点）
+        return prev;
+    }
+};
+```
+
+**复杂度分析**
+
+- 时间复杂度：*O*(*n*)，其中 *n* 是链表的长度。需要遍历链表一次。
+- 空间复杂度：*O*(1)。
+
+### 递归版
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if(!head || !head->next)
+            return head;
+        ListNode* newHead = reverseList(head->next);
+        head->next->next = head;
+        head->next = nullptr;
+        return newHead;
+    }
+};
+```
+
+**复杂度分析**
+
+时间复杂度：O(n)，其中 n 是链表的长度。需要对链表的每个节点进行反转操作。
+
+空间复杂度：O(n)，其中 n 是链表的长度。空间复杂度主要取决于递归调用的栈空间，最多为 n 层。
 
 ## 209 长度最小的子数组
 
@@ -1239,6 +1404,116 @@ public:
 ```
 
 需要注意的是，队列的头是早加入的元素，尾是刚刚加入的元素，即头对应start，尾对应end
+
+## 234 回文链表
+
+https://leetcode.cn/problems/palindrome-linked-list/solutions/457059/hui-wen-lian-biao-by-leetcode-solution/?envType=study-plan-v2&envId=top-100-liked
+
+### 递归版
+
+利用函数递归特性，当函数遍历到最底层遇到终止条件才会返回，终止条件设置为nullptr，则函数到达最后一个节点才会返回
+
+此时我们设置firstPointer指向第一个节点，当函数开始返回时，将curNode与firstPointer的值进行比较
+
+如果某次比较发现不相等，那么说明不是回文链表，需要向上传递结果，因此返回值设置为bool类型
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+private:
+    ListNode* firstPointer;
+public:
+    bool recursivelyCheck(ListNode* curNode){
+        if(!curNode)
+            return true;
+        if(!recursivelyCheck(curNode->next))
+            return false;
+        if(firstPointer->val != curNode->val)
+            return false;
+        firstPointer = firstPointer->next;
+        return true;
+    }
+    bool isPalindrome(ListNode* head) {
+        firstPointer = head;
+        return recursivelyCheck(head);
+    }
+};
+```
+
+**复杂度分析**
+
+- 时间复杂度：*O*(*n*)，其中 *n* 指的是链表的大小。
+- 空间复杂度：*O*(*n*)，其中 *n* 指的是链表的大小。
+
+### 迭代版
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+private:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* cur = head;
+        while (cur) {
+            ListNode* next = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = next;
+        }
+        return prev;
+    }
+    ListNode* getFirstEnd(ListNode* head) {
+        ListNode *fast = head, *slow = head;
+        while (fast->next != nullptr && fast->next->next != nullptr) {
+            fast = fast->next->next;
+            slow = slow->next;
+        }
+        return slow;
+    }
+
+public:
+    bool isPalindrome(ListNode* head) {
+        if (!head)
+            return true;
+        ListNode* firstEnd = getFirstEnd(head);
+        ListNode* secondHead = reverseList(firstEnd->next);
+        ListNode *p1 = head, *p2 = secondHead;
+        while (p2) {
+            if (p1->val != p2->val)
+                return false;
+            p1 = p1->next;
+            p2 = p2->next;
+        }
+        // 如果需要恢复原状
+        firstEnd->next = reverseList(secondHead);
+        return true;
+    }
+};
+```
+
+**复杂度分析**
+
+时间复杂度：O(n)，其中 n 指的是链表的大小。
+
+空间复杂度：O(1)。我们只会修改原本链表中节点的指向，而在堆栈上的堆栈帧不超过 O(1)。
 
 ## 240 搜索二维矩阵II
 
