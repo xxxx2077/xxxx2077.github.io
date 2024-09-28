@@ -21,6 +21,180 @@ DFS&回溯：leetcode934、685、1102、531、533、113、332、337
 贪心：leetcode55、435、621、452
 字典树：leetcode820、208、648
 
+## 1 两数之和
+
+### 暴力版
+
+```C++
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        int n = nums.size();
+        for (int i = 0; i < n; ++i) {
+            for (int j = i + 1; j < n; ++j) {
+                if (nums[i] + nums[j] == target) {
+                    return {i, j};
+                }
+            }
+        }
+        return {};
+    }
+};
+```
+
+
+
+### 优化版
+
+```C++
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        // 使用哈希表，因为想要将查询target - nums[i]的时间复杂度缩为O(1)
+        unordered_map<int,int> hashMap;
+        vector<int> ans;
+        // 遍历一遍数组，使用hashMap记录nums[i]之前的元素值和下标
+        for(int i = 0; i < nums.size(); i++){
+            // 如果hashMap存在target - nums[i],直接返回
+            auto it = hashMap.find(target - nums[i]);
+            if(it != hashMap.end()){
+                ans.push_back(it->second);
+                ans.push_back(i);
+                break;
+            }
+            // 如果不存在，更新hashMap
+            hashMap[nums[i]] = i;
+        }
+        return ans;
+    }
+};
+```
+
+## 3 无重复字符的最长子串
+
+```C++
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        int n = s.size();
+        int start = 0;
+        unordered_set<char> hashMap;
+        int ans = 0;
+        for(int end = 0; end < n; end++){
+            while(hashMap.count(s[end])){
+                // 这里注意是把s[start]移除
+                hashMap.erase(s[start]);
+                start++;
+            }
+            hashMap.insert(s[end]);
+            ans = max(ans,end - start + 1);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+## 11盛最多水的容器
+
+以两边为容器壁，往中间遍历
+
+更新容器壁小的那个指针
+
+```C++
+class Solution {
+public:
+    int maxArea(vector<int>& height) {
+        int l = 0, r = height.size() - 1;
+        int ans = 0;
+        while(l < r){
+          	// 根据题意，这里容器宽度为 r - l 不是r - l + 1
+            ans = max(ans, (r - l) * min(height[l],height[r]));
+            if(height[l] <= height[r])
+                l++;
+            else
+                r--;
+        }
+        return ans;
+    }
+};
+```
+
+
+
+## 15 三数之和
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        int n = nums.size();
+        sort(nums.begin(), nums.end());
+        vector<vector<int>> ans;
+        for (int first = 0; first < n; first++) {
+            if (first > 0 && nums[first] == nums[first - 1])
+                continue;
+            int target = -nums[first];
+            int third = n - 1;
+            for (int second = first + 1; second < n; second++) {
+                if (second > first + 1 && nums[second] == nums[second - 1])
+                    continue;
+                // 双指针需要保证左指针second < 右指针third
+                while (second < third && nums[second] + nums[third] > target){
+                    third--;
+                }
+                // 如果两者相同，则说明不再存在b<c，与我们的前提假设b>c矛盾，因此结束
+                if(second == third)
+                    break;
+                if(nums[second] + nums[third] == target)
+                    ans.push_back({nums[first],nums[second],nums[third]});
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
+## 17 电话号码的字母组合
+
+```C++
+class Solution {
+private:
+    vector<string> ans;
+    string res;
+    unordered_map<char, string> phoneMap{
+        {'2', "abc"}, {'3', "def"},  {'4', "ghi"}, {'5', "jkl"},
+        {'6', "mno"}, {'7', "pqrs"}, {'8', "tuv"}, {'9', "wxyz"}};
+    void dfs(vector<string>& ans, const unordered_map<char, string>& phoneMap,
+             const string& digits, int index, string& res) {
+        if (index == digits.size()) {
+            ans.push_back(res);
+            return;
+        }
+        char digit = digits[index];
+        string s = phoneMap.at(digit);
+        for (int i = 0; i < s.size(); i++) {
+            res.push_back(s[i]);
+            dfs(ans, phoneMap, digits, index + 1, res);
+            res.pop_back();
+        }
+    }
+
+public:
+    vector<string> letterCombinations(string digits) {
+        if (digits.empty())
+            return ans;
+        dfs(ans, phoneMap, digits, 0, res);
+        return ans;
+    }
+};
+```
+
+
+
 ## 21 合并两个升序链表
 
 ### 解法一：递归
@@ -103,6 +277,46 @@ public:
 **时间复杂度：O(n+m)**，其中 n 和 m 分别为两个链表的长度。因为每次循环迭代中，l1 和 l2 只有一个元素会被放进合并链表中， 因此 while 循环的次数不会超过两个链表的长度之和。所有其他操作的时间复杂度都是常数级别的，因此总的时间复杂度为 O(n+m)。
 
 **空间复杂度：O(1)**。我们只需要常数的空间存放若干变量。
+
+## 22 括号生成
+
+### 递归版
+
+如果左括号数小于对数，选择左括号
+
+如果右括号个数小于左括号，选择右括号
+
+```C++
+class Solution {
+private:
+    void dfs(vector<string>& ans, string& res, int left, int right, int n) {
+        if (res.size() == n * 2) {
+            ans.push_back(res);
+            return;
+        }
+        if (left < n) {
+            res.push_back('(');
+            dfs(ans, res, left + 1, right, n);
+            res.pop_back();
+        }
+        if (right < left) {
+            res.push_back(')');
+            dfs(ans, res, left, right + 1, n);
+            res.pop_back();
+        }
+    }
+
+public:
+    vector<string> generateParenthesis(int n) {
+        vector<string> ans;
+        string res;
+        dfs(ans, res, 0, 0, n);
+        return ans;
+    }
+};
+```
+
+
 
 ## 23 合并K个升序链表
 
@@ -305,6 +519,167 @@ public:
 
 
 
+## 25 K个一组翻转链表
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+private:
+    ListNode* reverse(ListNode* head){
+        ListNode* prev = nullptr;
+        ListNode* cur = head;
+        while(cur){
+            ListNode* nxt = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = nxt;
+        }
+        return prev;
+    }
+public:
+    ListNode* reverseKGroup(ListNode* head, int k) {
+        // 增加一个dummyNode
+        ListNode* dummyNode = new ListNode();
+        dummyNode->next = head;
+        // prev指向上一组的第k个节点，即本组第一个节点的前一个节点
+        // 起到dummyNode的作用
+        ListNode* prev = dummyNode, *end = prev;
+        // 当end没有下一个节点，不需要反转，结束循环
+        while(end->next){
+            // end指向本组的第k个节点
+            // 如果还遍历第[1,k]个节点，end为空，不需要反转，结束循环
+            for(int i = 0; i < k && end; i++)
+                end = end->next;
+            // 如果循环因为某节点为空而停止，不需要反转，结束循环
+            if(end == nullptr)
+                break;
+            // start指向本组的第一个节点
+            ListNode* start = prev->next;
+            // nxt指向下一组的第一个节点
+            ListNode* nxt = end->next;
+            // 反转链表，结果为新的链表头
+            // 反转链表与上一组链表相连
+            end->next = nullptr;
+            prev->next = reverse(start);
+            // 更新指针
+            start->next = nxt;
+            prev = start;
+            end = prev;
+        }
+        return dummyNode->next;
+    }
+};
+```
+
+
+
+## 39 组合总和II
+
+```C++
+class Solution {
+private:
+    vector<int> res;
+    vector<vector<int>> ans;
+    void dfs(const vector<int>& candidates, vector<int>& res, int target,
+             int index) {
+        if (index == candidates.size()) {
+            return;
+        }
+        if (target == 0) {
+            ans.push_back(res);
+            return;
+        }
+        // 不选这个数
+        dfs(candidates, res, target, index + 1);
+        // 选这个数
+        if (candidates[index] <= target) {
+            res.push_back(candidates[index]);
+            dfs(candidates, res, target - candidates[index], index);
+            res.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        dfs(candidates, res, target, 0);
+        return ans;
+    }
+};
+```
+
+## 42 接雨水
+
+接雨水的本质：找到第i个位置左侧高度最大值leftMax和右侧高度最大值rightMax，取min(leftMax, rightMax) - height[i]为i当前可接的雨水
+
+由以上分析可知，只与leftMax和rightMax中的最小值有关，与其中的最大值无关
+
+### 单调栈法
+
+```C++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int n = height.size();
+        stack<int> stk;
+        int ans = 0;
+        for(int i = 0; i < n; i++){
+            // 这里注意用的是while 不是 if
+            while(!stk.empty() && height[i] > height[stk.top()]){
+                int idx = stk.top();
+                stk.pop();
+                // 记得判断边界条件
+                if(stk.empty())
+                    break;
+                int left = stk.top();
+                int minHeight = min(height[left], height[i]);
+                ans += (minHeight - height[idx]) * (i - left - 1);
+            }
+            stk.push(i);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+### 双指针法
+
+```C++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int leftMax = 0, rightMax = 0;
+        int left = 0, right = height.size() - 1;
+        int ans = 0;
+        while(left < right){
+            leftMax = max(leftMax,height[left]);
+            rightMax = max(rightMax,height[right]);
+            if(leftMax < rightMax){
+                ans += leftMax - height[left];
+                ++left;
+            }
+            else{
+                ans += rightMax - height[right];
+                --right;
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
 ## 45 跳跃游戏II
 
 ```C++
@@ -346,6 +721,111 @@ public:
                 ans++;
                 end = nextStep;
             }
+        }
+        return ans;
+    }
+};
+```
+
+
+
+## 46 全排列
+
+```C++
+class Solution {
+private:
+    vector<vector<int>> ans;
+    void dfs(vector<int>& nums,int idx){
+        if(idx == nums.size() - 1){
+            ans.push_back(nums);
+            return;
+        } 
+        for(int i = idx; i < nums.size(); i++){
+            swap(nums[i], nums[idx]);
+            dfs(nums, idx + 1);
+            swap(nums[i], nums[idx]);
+        }
+    }
+public:
+    vector<vector<int>> permute(vector<int>& nums) {
+        dfs(nums, 0);
+        return ans;
+    }
+};
+```
+
+## 49 字母异位词分组
+
+第一种做法：对字符串进行排序，同一组异位词排序后的结果一定相同
+
+```C++
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        // 每个排序后的key对应的乱序的str
+        unordered_map<string, vector<string>> hashMap;
+        for (string& str : strs) {
+            string key = str;
+            sort(key.begin(), key.end());
+            hashMap[key].push_back(str);
+        }
+        vector<vector<string>> ans;
+        for (auto it = hashMap.begin(); it != hashMap.end(); it++) {
+            ans.push_back(it->second);
+        }
+        return ans;
+    }
+};
+```
+
+第二种做法：同一组异位词每个字符出现的次数一定相同
+
+```C++
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string, vector<string>> map;
+        for (string str : strs) {
+          	// 如果写成int counts[26];过不了
+          	// 可能是因为编译优化
+            int counts[26] = {0};
+            for (char c : str) {
+                counts[c - 'a']++;
+            }
+            string key = "";
+            for (int i = 0; i < 26; ++i) {
+                if (counts[i]) {
+                    key.push_back(i + 'a');
+                    key.push_back(counts[i]);
+                }
+            }
+            map[key].push_back(str);
+        }
+        vector<vector<string>> res;
+        for (auto it = map.begin(); it != map.end(); it++) {
+            res.push_back(it->second);
+        }
+        return res;
+    }
+};
+```
+
+## 53 最大子数组和
+
+```C++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n,0);
+        dp[0] = nums[0];
+        int ans = dp[0];
+        for(int i = 1; i < n; i++){
+            if(dp[i - 1] >= 0)
+                dp[i] = dp[i - 1] + nums[i];
+            else
+                dp[i] = nums[i];
+            ans = max(ans, dp[i]);
         }
         return ans;
     }
@@ -486,6 +966,163 @@ public:
 **空间复杂度：$O(1)$**
 
 只需3个变量
+
+## 76 最小覆盖子串
+
+```C++
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        // hs记录s的字符和个数
+        // ht记录t的字符和个数
+        unordered_map<char,int> hs,ht;
+        int sLen = s.size();
+        int tLen = t.size();
+        string res;
+        if(sLen < tLen)
+            return res;
+        for(auto c: t){
+            ht[c]++;
+        }
+        // cnt用于记录需要的字符数
+        int cnt = 0;
+        // 遍历s
+        for(int i = 0, j = 0; i < sLen; i++){
+            hs[s[i]]++;
+            // 如果当前窗口内hs含有字符s[i]个数比ht少
+            // 说明当前字符s[i]是必须的
+            // 说明窗口需要继续扩展
+            if(hs[s[i]] <= ht[s[i]])
+                cnt++;
+            // s[j]是多余的
+            // 收缩窗口
+            while(hs[s[j]] > ht[s[j]]){
+                hs[s[j]]--;
+                j++;
+            }
+            if(cnt == t.size()){
+                if(res.empty() || i - j + 1 < res.size())
+                    res = s.substr(j, i - j + 1);
+            }
+        }
+        return res;
+    }
+};
+```
+
+
+
+## 78 子集
+
+### 迭代法
+
+用二进制表示每个幂集，第i位为1表示选择第i个元素，那么总共有2^n - 1个状态
+
+```C++
+class Solution {
+private:
+    vector<int> t;
+    vector<vector<int>> ans;
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        int n = nums.size();
+        // 总共有2^n - 1种状态
+        for(int mask = 0; mask < (1 << n); mask++){
+            // 每个状态对应的序列不同
+            t.clear();
+            // 枚举每个元素
+            for(int i = 0; i < n; i++){
+                // 1 << i表示第i位为1
+                // mask & (1 << i)表示mask状态第i位为1
+                // 即选择第i个元素
+                if(mask & (1 << i)){
+                    t.push_back(nums[i]);
+                }
+            }
+            ans.push_back(t);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+### 递归法
+
+用idx记录当前遍历到第几个元素，分类讨论：
+
+- 选择当前元素，如果选择当前元素，那么dfs之后需要回溯
+- 不选择当前元素
+
+```C++
+class Solution {
+private:
+    vector<vector<int>> ans;
+    vector<int> res;
+    void dfs(vector<int>&nums, int idx){
+        if(idx == nums.size()){
+            ans.push_back(res);
+            return;
+        }
+        res.push_back(nums[idx]);
+        dfs(nums, idx + 1);
+        res.pop_back();
+        dfs(nums, idx + 1);
+    }
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        dfs(nums, 0);
+        return ans;
+    }
+};
+```
+
+
+
+## 79 单词搜索
+
+```C++
+class Solution {
+private:
+    int rows, cols;
+    int dx[4] = {-1, 0, 1, 0};
+    int dy[4] = {0, 1, 0, -1};
+    bool dfs(vector<vector<char>>& board, const string& word, int x, int y,
+             int idx) {
+        if (board[x][y] != word[idx])
+            return false;
+        if (idx == word.size() - 1)
+            return true;
+        for (int i = 0; i < 4; i++) {
+            int a = x + dx[i];
+            int b = y + dy[i];
+            if (a >= 0 && a < rows && b >= 0 && b < cols) {
+                board[x][y] = '\0';
+                if (dfs(board, word, a, b, idx + 1))
+                    return true;
+                board[x][y] = word[idx];
+            }
+        }
+        return false;
+    }
+
+public:
+    bool exist(vector<vector<char>>& board, string word) {
+        rows = board.size();
+        cols = board[0].size();
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (dfs(board, word, i, j, 0))
+                    return true;
+            }
+        }
+        return false;
+    }
+};
+```
+
+
 
 ## 84 柱状图最大的矩形
 
@@ -874,6 +1511,42 @@ public:
 };
 ```
 
+## 128 最长连续序列
+
+关键：
+
+- 对数组去重
+- 如果x+y 的前驱x + y - 1也在，可以跳过当前的计算，因为x + y - 1已经计算过了
+
+```C++
+class Solution {
+public:
+    int longestConsecutive(vector<int>& nums) {
+        // 对数组去重
+        unordered_set<int> numSet;
+        for(int num : nums)
+            numSet.insert(num);
+        int ans = 0;
+        // 遍历每个元素
+        for(int num : numSet){
+            // 如果num的前驱num - 1存在说明可以跳过
+            if(!numSet.count(num - 1)){
+                int curNum = num;
+                int len = 1;
+                while(numSet.count(curNum + 1)){
+                    ++curNum;
+                    ++len;
+                }
+                ans = max(ans, len);
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
 ## 141 环形链表
 
 根据题意：一个节点没有环
@@ -938,6 +1611,96 @@ public:
         return fast;
     }
 };
+```
+
+## 146 LRU缓存
+
+```C++
+class DListNode {
+public:
+    int key;
+    int value;
+    DListNode* prev;
+    DListNode* next;
+    DListNode():key(0), value(0),prev(nullptr),next(nullptr){};
+    DListNode(int key_, int value_) : key(key_), value(value_),prev(nullptr),next(nullptr) {}
+};
+
+class LRUCache {
+private:
+    DListNode* head;
+    DListNode* tail;
+    unordered_map<int, DListNode*> cache;
+    int size;
+    int capacity;
+
+    void addToHead(DListNode* node) {
+        node->prev = head;
+        node->next = head->next;
+        head->next->prev = node;
+        head->next = node;
+    }
+
+    void removeNode(DListNode* node) {
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+    }
+
+    void moveToHead(DListNode* node) {
+        removeNode(node);
+        addToHead(node);
+    }
+
+    DListNode* removeTail() {
+        DListNode* node = tail->prev;
+        removeNode(node);
+        return node;
+    }
+
+public:
+    LRUCache(int capacity) {
+        this->capacity = capacity;
+        head = new DListNode();
+        tail = new DListNode();
+        head->next = tail;
+        tail->prev = head;
+        size = 0;
+    }
+
+    int get(int key) {
+        if (!cache.count(key))
+            return -1;
+        DListNode* node = cache[key];
+        moveToHead(node);
+        return node->value;
+    }
+
+    void put(int key, int value) {
+        if (cache.count(key)) {
+            DListNode* node = cache[key];
+            moveToHead(node);
+            node->value = value;
+        } else {
+            DListNode* node = new DListNode(key, value);
+            addToHead(node);
+            cache[key] = node;
+            ++size;
+            if (size > capacity) {
+                DListNode* t = removeTail();
+                cache.erase(t->key);
+                delete t;
+                --size;
+            }
+        }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
 ```
 
 
@@ -1621,6 +2384,145 @@ public:
 
 
 
+## 283 移动零
+
+```C++
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        int n = nums.size();
+        // 右指针遍历数组的每个数组
+        // 左指针指向非零序列的尾部（尾部元素的下一个）
+        // [l,r - 1]一定为0
+        int l = 0, r = 0;
+        while(r < n){
+            if(nums[r]){
+                swap(nums[l],nums[r]);
+                l++;
+            }
+            r++;
+        }
+    }
+};
+```
+
+
+
+## 415 字符串相加（大数加法）
+
+```C++
+class Solution {
+public:
+    string addStrings(string num1, string num2) {
+        int len1 = num1.size(), len2 = num2.size();
+        if (len1 < len2)
+            return addStrings(num2, num1);
+      	// 将num1，num2反向存储，因为最高位放在数组末端，方便进位
+        vector<int> a, b;
+        for (int i = len1 - 1; i >= 0; i--)
+            a.push_back(num1[i] - '0');
+        for (int i = len2 - 1; i >= 0; i--)
+            b.push_back(num2[i] - '0');
+        string ans;
+        int t = 0;
+        for (int i = 0; i < len1; i++) {
+            t += a[i];
+            if (i < len2)
+                t += b[i];
+            ans.push_back(t % 10 + '0');
+            t /= 10;
+        }
+        if (t)
+            ans.push_back(t + '0');
+     		// ans也为倒序，真实答案需要反过来
+        reverse(ans.begin(), ans.end());
+        return ans;
+    }
+};
+```
+
+
+
+## 438 找到字符串中的所有字母异位词
+
+```C++
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> ans;
+        int sLen = s.size(), pLen = p.size();
+        // 注意边界条件
+        if(sLen < pLen)
+            return ans;
+        // 哈希表，统计字符数
+        vector<int> sCount(26);
+        vector<int> pCount(26);
+        
+        for (int i = 0; i < pLen; i++) {
+            ++sCount[s[i] - 'a'];
+            ++pCount[p[i] - 'a'];
+        }
+        // 这里使用了vector的比较
+        if (sCount == pCount)
+            ans.push_back(0);
+        for (int i = 0; i < sLen - pLen; i++) {
+            // 移动窗口
+            --sCount[s[i] - 'a'];
+            ++sCount[s[i + pLen] - 'a'];
+            if(sCount == pCount)
+                ans.push_back(i + 1);
+        }
+        return ans;
+    }
+};
+```
+
+## 470 用rand7() 实现rand10()
+
+```C++
+// The rand7() API is already defined for you.
+// int rand7();
+// @return a random integer in the range 1 to 7
+
+class Solution {
+public:
+    int rand10() {
+        while (true) {
+            // (rand_X - 1) * Y + rand_Y 可构造[1, X * Y]
+            // 相当于构造一个Y进制的数，个位是rand_Y，满足Y进制，每个个位等概率分布
+            // “十位”是 (rand_X - 1)，也是等概率分布
+            // rand_X为[1,X]
+            // 类比于3 = 二进制的 11 = 2 * 1 + 2，这里Y就是2，X - 1就是1
+            // 因此能够构造的最大值为 Y * (X - 1) + Y
+            int num = (rand7() - 1) * 7 + (rand7() - 1); // num 为等概率[0, 48]
+            // 对[0,48]取我们需要的值[1,11]
+            if (num >= 1 && num <= 40)
+                return num % 10 + 1;
+
+            // 对多出来的值0,41,42...48继续利用
+            // num % 40 = 0, 1, 2, 3, ...,8 = rand9() - 1
+            // 继续利用公式构造等概率分布
+            num = (num % 40) * 7 + rand7() - 1;
+            // num取值为[0, 62]
+            // 无用数字只有0, 1, 2
+            if (num >= 1 && num <= 60)
+                return num % 10 + 1;
+
+            // 同理
+            // num % 60 = 0, 1, 2 = rand3() - 1
+            // num取值为[0, 20]
+            num = (num % 60) * 7 + rand7() - 1;
+            if (num >= 1 && num <= 20)
+                return num % 10 + 1;
+
+            // 最后无用数字只有0
+        }
+    }
+};
+```
+
+
+
 ## 503 下一个更大元素II
 
 https://leetcode.cn/problems/next-greater-element-ii/description/
@@ -1786,6 +2688,39 @@ public:
 
 空间复杂度：$O(n)$，其中 n 是城市的数量。需要使用数组 parent 记录每个城市所属的连通分量的祖先。
 
+## 560 和为k的子数组
+
+```C++
+class Solution {
+public:
+    int subarraySum(vector<int>& nums, int k) {
+        // key记录值sum[i] - k，value记录个数
+        unordered_map<int,int> hashMap;
+        int n = nums.size();
+        int pre = 0;
+        int count = 0;
+        // 这一步不能省
+        // 因为pre == k的时候一定有解
+        // 从前缀和为0的时候开始
+        hashMap[0] = 1;
+        // sum[i] - sum[j - 1] = k
+        // 即sum[j - 1] = sum[i] - k
+        // 此处的pre就是sum[i]
+        for(int i = 0; i < n; i++){
+            pre += nums[i];
+            auto it = hashMap.find(pre - k);
+            if(it != hashMap.end())
+                count += it->second;
+            // 记录前缀和为pre的个数
+            hashMap[pre]++;
+        }
+        return count;
+    }
+};
+```
+
+
+
 ## 684 冗余连接
 
 https://leetcode.cn/problems/redundant-connection/
@@ -1898,6 +2833,122 @@ public:
 时间复杂度：O(n)，其中 n 是字符串的长度。需要遍历字符串两次，第一次遍历时记录每个字母最后一次出现的下标位置，第二次遍历时进行字符串的划分。
 
 空间复杂度：O(∣Σ∣)，其中 Σ 是字符串中的字符集。这道题中，字符串只包含小写字母，因此 ∣Σ∣=26。
+
+## 912 排序数组
+
+### 堆排序
+
+```C++
+class Solution {
+private:
+    void heapify(vector<int>& nums, int u, int heapSize) {
+        int smallest = u;
+        int l = 2 * u + 1, r = 2 * u + 2;
+        if (l < heapSize && nums[l] < nums[smallest])
+            smallest = l;
+        if (r < heapSize && nums[r] < nums[smallest])
+            smallest = r;
+        if (smallest != u) {
+            swap(nums[smallest], nums[u]);
+            heapify(nums, smallest, heapSize);
+        }
+    }
+    void buildMinHeap(vector<int>& nums, int heapSize) {
+        for (int i = nums.size() / 2; i >= 0; i--)
+            heapify(nums, i, heapSize);
+    }
+
+public:
+    vector<int> sortArray(vector<int>& nums) {
+        vector<int> ans;
+        int heapSize = nums.size();
+        buildMinHeap(nums, heapSize);
+        for (int i = heapSize - 1; i >= 0; i--) {
+            ans.push_back(nums[0]);
+            swap(nums[0], nums[i]);
+            heapify(nums, 0, i);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+### 归并排序
+
+```C++
+class Solution {
+private:
+    vector<int> tmp;
+    void mergeSort(vector<int>& nums,int l,int r){
+        if(l < r){
+            int mid = (l + r)>> 1;
+            mergeSort(nums,l,mid);
+            mergeSort(nums,mid+ 1,r);
+            int cnt = 0;
+            int i = l, j = mid + 1;
+            while(i <= mid && j <= r){
+                if(nums[i] <= nums[j])
+                    tmp[cnt++] = nums[i++];
+                else
+                    tmp[cnt++] = nums[j++];
+            }
+            while(i <= mid)
+                tmp[cnt++] = nums[i++];
+            while(j <= r)
+                tmp[cnt++] = nums[j++];
+            for(int i = 0; i < r - l + 1;i++)
+                nums[l+i] = tmp[i];
+        }
+    }
+public:
+    vector<int> sortArray(vector<int>& nums) {
+        tmp.resize(nums.size(),0);
+        mergeSort(nums,0,nums.size() - 1);
+        return nums;
+    }
+};
+```
+
+
+
+### 快速排序
+
+```C++
+class Solution {
+private:
+    void quickSort(vector<int>& nums, int l, int r) {
+        // 注意是l < r
+        if (l < r) {
+            int idx = l + rand() % (r - l + 1);
+            int pivot = nums[idx];
+            int i = l - 1, j = r + 1;
+            while (i < j) {
+                do
+                    i++;
+                while (nums[i] < pivot);
+                do
+                    j--;
+                while (nums[j] > pivot);
+                if(i < j)
+                    swap(nums[i],nums[j]);
+            }
+            // 因为是 l < r 所以这里是quickSort(nums, l, j)而不是quickSort(nums, l, j - 1)
+            quickSort(nums, l, j);
+            quickSort(nums, j + 1, r);
+        }
+    }
+
+public:
+    vector<int> sortArray(vector<int>& nums) {
+        quickSort(nums, 0, nums.size() - 1);
+        return nums;
+    }
+};
+```
+
+
 
 ## 刷题总结
 
