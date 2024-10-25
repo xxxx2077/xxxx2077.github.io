@@ -1,0 +1,2018 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../../software_development/backend/interview_experiences/">
+      
+      
+        <link rel="next" href="../leetcode/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.42">
+    
+    
+      
+        <title>算法基础 - winsonYe</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="winsonYe" class="md-header__button md-logo" aria-label="winsonYe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            winsonYe
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              算法基础
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="winsonYe" class="md-nav__button md-logo" aria-label="winsonYe" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    winsonYe
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    开发
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            开发
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    后端开发
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            后端开发
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../software_development/backend/interview_experiences/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    面经
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    算法题
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            算法题
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    算法基础
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    算法基础
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      二分查找
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二分查找">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#x" class="md-nav__link">
+    <span class="md-ellipsis">
+      查找大于等于x 的第一个数
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#x_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      查找小于等于x 的最后一个数
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      记忆口诀
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      动态规划
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="动态规划">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#01" class="md-nav__link">
+    <span class="md-ellipsis">
+      01背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="01背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      完全背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="完全背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      最初版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      普通优化版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      最终优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      多重背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="多重背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      分组背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="分组背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dp" class="md-nav__link">
+    <span class="md-ellipsis">
+      线性DP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="线性DP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      数字三角形
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数字三角形">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      最长上升子序列
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="最长上升子序列">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      最长公共子序列
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="最长公共子序列">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dp_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      区间DP
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      小技巧
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="小技巧">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memset" class="md-nav__link">
+    <span class="md-ellipsis">
+      memset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      无穷大
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stl" class="md-nav__link">
+    <span class="md-ellipsis">
+      STL容器
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="STL容器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      优先级队列
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../leetcode/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    leetcode刷题笔记
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    About
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      二分查找
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二分查找">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#x" class="md-nav__link">
+    <span class="md-ellipsis">
+      查找大于等于x 的第一个数
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#x_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      查找小于等于x 的最后一个数
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      记忆口诀
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      动态规划
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="动态规划">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#01" class="md-nav__link">
+    <span class="md-ellipsis">
+      01背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="01背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      完全背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="完全背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      最初版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      普通优化版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      最终优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      多重背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="多重背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_14" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_15" class="md-nav__link">
+    <span class="md-ellipsis">
+      分组背包问题
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="分组背包问题">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_16" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_17" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dp" class="md-nav__link">
+    <span class="md-ellipsis">
+      线性DP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="线性DP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_18" class="md-nav__link">
+    <span class="md-ellipsis">
+      数字三角形
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="数字三角形">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_19" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_20" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_21" class="md-nav__link">
+    <span class="md-ellipsis">
+      最长上升子序列
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="最长上升子序列">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_22" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_23" class="md-nav__link">
+    <span class="md-ellipsis">
+      优化版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_24" class="md-nav__link">
+    <span class="md-ellipsis">
+      最长公共子序列
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="最长公共子序列">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_25" class="md-nav__link">
+    <span class="md-ellipsis">
+      朴素版
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dp_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      区间DP
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_26" class="md-nav__link">
+    <span class="md-ellipsis">
+      小技巧
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="小技巧">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#memset" class="md-nav__link">
+    <span class="md-ellipsis">
+      memset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_27" class="md-nav__link">
+    <span class="md-ellipsis">
+      无穷大
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stl" class="md-nav__link">
+    <span class="md-ellipsis">
+      STL容器
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="STL容器">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_28" class="md-nav__link">
+    <span class="md-ellipsis">
+      优先级队列
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="_1">算法基础</h1>
+<h2 id="_2">二分查找</h2>
+<h4 id="x">查找大于等于x 的第一个数</h4>
+<p>a[mid] &gt;= target说明要寻找的数在[l, mid]中</p>
+<p>a[mid] &lt; target说明要寻找的数在(mid, n - 1]中</p>
+<pre><code class="language-C++">// 区间[l, r]被划分成[l, mid]和[mid + 1, r]时使用：
+int bsearch_1(int l, int r)
+{
+    while (l &lt; r)
+    {
+        int mid = l + r &gt;&gt; 1;
+        if (a[mid] &lt; target) l = mid + 1;    // check()判断mid是否满足性质
+        else r = mid ;
+    }
+    return l;
+}
+</code></pre>
+<h4 id="x_1">查找小于等于x 的最后一个数</h4>
+<p>a[mid] &gt;= target说明要寻找的数在[l, mid]中</p>
+<p>a[mid] &lt; target说明要寻找的数在(mid, n - 1]中</p>
+<pre><code class="language-C++">// 区间[l, r]被划分成[l, mid - 1]和[mid, r]时使用：
+int bsearch_2(int l, int r)
+{
+    while (l &lt; r)
+    {
+        int mid = l + r + 1 &gt;&gt; 1;
+        if (a[mid] &gt; target) r = mid - 1;
+        else l = mid;
+    }
+    return l;
+}
+</code></pre>
+<h4 id="_3">记忆口诀</h4>
+<p>大于等于x：</p>
+<ul>
+<li>r = mid</li>
+<li>因为是大于，所以l 是 mid + 1</li>
+</ul>
+<p>小于等于x：</p>
+<ul>
+<li>l = mid</li>
+<li>因为是小于，所以r 是mid - 1</li>
+</ul>
+<h2 id="_4">动态规划</h2>
+<p>动态规划可根据以下两个维度思考：</p>
+<ol>
+<li>状态表示</li>
+<li>集合</li>
+<li>属性</li>
+<li>状态计算</li>
+<li>时间复杂度计算：状态数 * 状态转移计算次数</li>
+</ol>
+<h3 id="_5">背包问题</h3>
+<p>给出N个物品的体积$v_i$和价值$w_i$，以及背包的总容量V</p>
+<p>求解将哪些物品装入背包，可使这些物品的总体积不超过背包容量，且总价值最大。</p>
+<p>输出最大价值。</p>
+<h4 id="01">01背包问题</h4>
+<blockquote>
+<p>模板题：https://www.acwing.com/problem/content/2/</p>
+</blockquote>
+<p><strong>特点：</strong>每件物品只能使用一次</p>
+<p><strong>状态计算：</strong></p>
+<p>由于每个物品只能使用一次，那么分类讨论为：</p>
+<ol>
+<li>第i个物品不装进书包：<code>f[i][j]=f[i - 1][j]</code></li>
+<li>第i个物品装进书包：<code>f[i][j] =f[i - 1][j - v[i]] + w[i]</code> </li>
+</ol>
+<p><code>f[i][j]取以上结果的最大值max即可，即f[i][j] = max(f[i - 1][j], f[i - 1][j - v[i]] + w[i])</code></p>
+<h5 id="_6">朴素版</h5>
+<p>采用二维数组<code>f[i][j]</code>作为状态表达式，表示<strong>前i个物品背包容积为j的所有选择</strong></p>
+<pre><code class="language-c++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010, V = 1010;
+//  f[N][V] 状态表达式
+//  集合：f[i][j] 表示 前i个物品背包容积为j的所有选择
+//  属性：所有选择的价值最大值
+int f[N][V];
+
+// v[i] 记录每个物品的体积，w[i] 记录每个物品的价值
+int v[N],w[N];
+
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    //  输入    
+    for(int i = 1; i &lt;= n; i++){
+        cin &gt;&gt; v[i] &gt;&gt; w[i];
+    }
+
+    //  开始求解
+    //  f[0][0~m]都是0，因为第0个物品没有价值可言
+    //  从第1个物品开始计算
+    for(int i = 1; i &lt;= n; i++){
+        //  遍历每个容积
+        for(int j = 0; j &lt;= m; j++){
+            //  如果不选第i个物品
+            f[i][j] = f[i - 1][j];
+            //  如果选择第i个物品
+            //  判断当前容积是否能容纳第i个物品
+            if(j &gt;= v[i])   
+                // f[i - 1][j - v[i]]表示选择第i个物品的前提下，第i - 1个物品的价值最大值
+                f[i][j] = max(f[i][j], f[i - 1][j - v[i]] + w[i]);
+        }
+    }
+
+    //  输出结果，f[n][m]表示前n个物品容积为m的价值最大值，即我们问题的解
+    cout &lt;&lt; f[n][m] &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(NV)\approx O(n^2)$</p>
+<p><strong>空间复杂度：</strong>$O(NV)\approx O(n^2)$</p>
+<h5 id="_7">优化版</h5>
+<p>优化思路：</p>
+<ol>
+<li>计算<code>f[i]</code>都是依靠<code>f[i - 1]</code>，因此本质上只需要一维数组，这种称为滚动数组（滚动数组：二维数组计算的时候<code>f[i]</code>只依托于<code>f[i - 1]</code>等有限个前驱数组）</li>
+<li>遍历容积都是从<code>j == 0</code>开始，但是又有判断<code>j &gt;= v[i]</code>才会计算<code>f[i][j] = max(f[i][j], f[i - 1][j - v[i]] + w[i]);</code>因此可以直接从<code>j == v[i]</code>开始</li>
+</ol>
+<p><strong>值得注意的是：</strong></p>
+<p>由于滚动数组只有一维，因此<code>f[i - 1][j]</code>实际上以上一次存储的<code>f[j]</code>来表示</p>
+<p>如果从左往右计算，那么计算<code>f[i][j]</code>时，由于<code>j - v[i] &lt;= j</code>，<code>f[j - v[i]]</code>在<code>f[j]</code>的左侧，即已经被计算过</p>
+<p>此时<code>f[j - v[i]]</code>表示的是<code>f[i][j - v[i]]</code>而不是<code>f[i - 1][j - v[i]]</code>，与题意不符</p>
+<p>因此我们需要从右往左计算，保证计算顺序<code>f[j]</code>早于<code>f[j - v[i]]</code></p>
+<pre><code class="language-c++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010, V = 1010;
+//  f[V] 状态表达式
+//  集合：遍历第i次，f[j] 表示 前i个物品背包容积为j的所有选择
+//  属性：所有选择的价值最大值
+int f[V];
+
+// v[i] 记录每个物品的体积，w[i] 记录每个物品的价值
+int v[N],w[N];
+
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    //  输入    
+    for(int i = 1; i &lt;= n; i++){
+        cin &gt;&gt; v[i] &gt;&gt; w[i];
+    }
+
+    //  开始求解
+    //  f[0~m]都是0，因为第0个物品没有价值可言
+    //  从第1个物品开始计算
+    for(int i = 1; i &lt;= n; i++){
+        //  遍历每个容积
+        for(int j = m; j &gt;= v[i]; j--){
+            f[j] = max(f[j], f[j - v[i]] + w[i]);
+        }
+    }
+
+    //  输出结果，已经遍历了n次，f[m]表示前n个物品容积为m的价值最大值，即我们问题的解
+    cout &lt;&lt; f[m] &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(NV)\approx O(n^2)$</p>
+<p><strong>空间复杂度：</strong>$O(V)\approx O(n)$</p>
+<h4 id="_8">完全背包问题</h4>
+<blockquote>
+<p>模板题：https://www.acwing.com/problem/content/3/</p>
+</blockquote>
+<p><strong>特性：</strong>每种物品都有无限件可用。</p>
+<p><strong>状态计算：</strong></p>
+<p>以物品的个数作为分类讨论条件：</p>
+<ol>
+<li>第i个物品取0个：<code>f[i - 1][j] = f[i][j - 0*v[i]]+0*w[i]</code></li>
+<li>第i个物品取1个：<code>f[i][j - 1*v[i]]+1*w[i]</code></li>
+<li>....</li>
+<li>第i个物品取k个：<code>f[i][j - k*v[i]]+k*w[i]</code></li>
+<li>....</li>
+</ol>
+<p>保证<code>k * v[i] &lt;= j</code>的前提，把以上状态全部取个max得到结果</p>
+<h5 id="_9">最初版</h5>
+<pre><code class="language-c++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010, V = 1010;
+int f[N][V];
+int v[N], w[N];
+
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for(int i = 1; i &lt;= n; i++)
+        cin &gt;&gt; v[i] &gt;&gt; w[i];
+    for(int i = 1; i &lt;= n; i++){
+        for(int j = 0; j &lt;= m; j++){
+            for(int k = 0; k * v[i] &lt;= j; k++){
+                f[i][j] = max(f[i][j], f[i - 1][j - k * v[i]] + k * w[i]);
+            }
+        }
+    }
+
+    cout &lt;&lt; f[n][m] &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(NV*\frac{V}{v})\approx O(n^3)$</p>
+<p><strong>空间复杂度：</strong>$O(NV)\approx O(n^2)$</p>
+<p>该方法时间复杂度过于高，基本不使用</p>
+<h5 id="_10">普通优化版</h5>
+<pre><code>f[i][j] 
+= max(f[i - 1][j], f[i - 1][j - v[i]] + w[i], f[i - 1][j - 2 * v[i]] + 2 * w[i],f[i - 1][j - 3 * v[i]] + 2 * w[i]， ..., f[i - 1][j - k * v[i]] + k * w[i]     ,...)
+
+f[i][j - v[i]] 
+= max(             f[i - 1][j - v[i]]       , f[i - 1][j - 2 *v[i]] + w[i],      f[i - 1][j - 3 * v[i]] + 2 * w[i], ..., f[i - 1][j - (k + 1) * v[i]] + k * w[i],...)
+
+可以发现
+`f[i][j] 
+= max(f[i - 1][j], f[i][j - v[i]] + w[i])`
+</code></pre>
+<p>我们得到新的状态计算方程：</p>
+<p><code>f[i][j] = max(f[i - 1][j], f[i][j - v[i]] + w[i])</code></p>
+<p><strong>注意：</strong></p>
+<p>完全背包问题的状态方程与01背包问题不同</p>
+<ul>
+<li>01背包问题的状态计算方程为<code>f[i][j] = max(f[i - 1][j], f[i - 1][j - v[i]] + w[i])</code>，这里是 i - 1</li>
+<li>完全背包问题的状态计算方程为<code>f[i][j] = max(f[i - 1][j], f[i][j - v[i]] + w[i])</code>， 这里是 i</li>
+</ul>
+<pre><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010, V = 1010;
+int f[N][V];
+int v[N], w[N];
+
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for(int i = 1; i &lt;= n; i++)
+        cin &gt;&gt; v[i] &gt;&gt; w[i];
+    for(int i = 1; i &lt;= n; i++){
+        for(int j = 0; j &lt;= m; j++){
+            f[i][j] = f[i - 1][j];
+            if(j &gt;= v[i])
+                f[i][j] = max(f[i][j], f[i][j - v[i]] + w[i]);
+        }
+    }
+
+    cout &lt;&lt; f[n][m] &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(NV)\approx O(n^2)$</p>
+<p><strong>空间复杂度：</strong>$O(NV)\approx O(n^2)$</p>
+<p>与01背包问题类似，该方法还能优化为一维数组版</p>
+<h5 id="_11">最终优化版</h5>
+<p>优化思路与01背包问题大致相同</p>
+<p><strong>唯一不同点在于：</strong></p>
+<p>本次是从左往右遍历容积j（01背包是从右往左），这是因为状态计算方程不同：</p>
+<ul>
+<li>01背包问题的状态计算方程为<code>f[i][j] = max(f[i - 1][j], f[i - 1][j - v[i]] + w[i])</code>，这里是 i - 1</li>
+<li>完全背包问题的状态计算方程为<code>f[i][j] = max(f[i - 1][j], f[i][j - v[i]] + w[i])</code>， 这里是 i</li>
+</ul>
+<p><code>f[i][j - v[i]]</code>与<code>f[i][j]</code>在同一行，优化为一维数组后，为<code>f[j - v[i]]</code>，在<code>f[j]</code>的左边，计算顺序：<code>f[j - v[i]]</code>先于<code>f[j]</code></p>
+<p>所以从左往右遍历</p>
+<pre><code class="language-c++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010, V = 1010;
+int f[V];
+int v[N], w[N];
+
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for(int i = 1; i &lt;= n; i++)
+        cin &gt;&gt; v[i] &gt;&gt; w[i];
+    for(int i = 1; i &lt;= n; i++){
+        // 从左往右遍历
+        for(int j = v[i]; j &lt;= m; j++){
+            f[j] = max(f[j], f[j - v[i]] + w[i]);
+        }
+    }
+
+    cout &lt;&lt; f[m] &lt;&lt; endl;
+}
+</code></pre>
+<h4 id="_12">多重背包问题</h4>
+<blockquote>
+<p>模板题：</p>
+<ul>
+<li>不限时版：https://www.acwing.com/problem/content/4/</li>
+<li>限时版：https://www.acwing.com/problem/content/5/</li>
+</ul>
+</blockquote>
+<p><strong>特性：</strong>每个物品最多选择s[i]件</p>
+<h5 id="_13">朴素版</h5>
+<p>最基础的想法：枚举物品选择的件数k</p>
+<pre><code class="language-c++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010, V = 1010;
+int f[N][V];
+int v[N], w[N], s[N];
+
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for(int i = 1; i &lt;= n; i++){
+        cin &gt;&gt; v[i] &gt;&gt; w[i] &gt;&gt; s[i];
+    }
+    for(int i = 1; i &lt;= n; i++){
+        for(int j = 0; j &lt;= m; j++){
+            for(int k = 0; k &lt;= s[i] &amp;&amp; k * v[i] &lt;= j; k++){
+                f[i][j] = max(f[i][j], f[i - 1][j - k * v[i]] + k * w[i]);
+            }
+        }
+    }
+
+    cout &lt;&lt; f[n][m] &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(NVs)\approx O(n^3)$</p>
+<p><strong>空间复杂度：</strong>$O(NV)\approx O(n^2)$</p>
+<h5 id="_14">优化版</h5>
+<p>与完全背包问题不同，多重背包多了一项，因此不能采用完全背包问题的做法</p>
+<pre><code>f[i][j] 
+= max(f[i - 1][j], f[i - 1][j - v[i]] + w[i], f[i - 1][j - 2 * v[i]] + 2 * w[i],f[i - 1][j - 3 * v[i]] + 2 * w[i]， ..., f[i - 1][j - k * v[i]] + k * w[i]     ,..., f[i - 1][j - s[i] * v[i]] + s[i] * w[i])
+
+f[i][j - v[i]] 
+= max(             f[i - 1][j - v[i]]       , f[i - 1][j - 2 * v[i]] + w[i],     f[i - 1][j - 3 * v[i]] + 2 * w[i], ..., f[i - 1][j - (k + 1) * v[i]] + k * w[i],..., f[i - 1][j - s[i] * v[i]] + (s[i] - 1) * w[i], f[i - 1][j - (s[i] + 1) * v[i]] + s[i] * w[i])
+
+与01背包不同，不能再写成：
+f[i][j] 
+= max(f[i - 1][j], f[i][j - v[i]] + w[i])
+
+因为f[i][j - v[i]]比f[i][j]多了一项f[i - 1][j - (s[i] + 1) * v[i]] + s[i] * w[i]，多出来的一项记作d
+所以f[i][j - v[i]] = max(B, d)， B为d前面若干项
+
+f[i][j] = max(f[i - 1][j], f[i][j - v[i]] + w[i])
+f[i][j - v[i]] = max(B , d)
+-&gt; f[i][j] = max(f[i - 1][j], max(B , d) + w[i])
+无法计算B，因此这种方法不可取
+</code></pre>
+<blockquote>
+<p>回顾多重背包朴素版解法存在的问题：需要枚举每个物品的件数，而且这一步不能像完全背包问题那样优化，导致时间复杂度过高</p>
+<p>而01背包不需要枚举每个物品的件数，因为物品最多只有1件</p>
+<p>我们能否将多重背包问题转换为01背包问题？</p>
+</blockquote>
+<p>优化版采用二进制分组表示法，将物品的件数k分解为若干个二进制组，那么枚举k变成了枚举每个组是否需要</p>
+<p>因此多重背包问题转换为了01背包问题的解法</p>
+<p>接下来我们看如何将k转换为二进制组</p>
+<p><strong>优化解法</strong></p>
+<p>理论前提：</p>
+<ul>
+<li>任何数都能由二进制1，2，4，8，...，表示，例如$11=(1011)_2=8+0+2+1$</li>
+</ul>
+<p>根据该前提，我们得出物品的件数s也能由二进制表示，枚举物品件数变成了枚举二进制组的个数</p>
+<p>时间复杂度由$O(n^3)$缩减为$O(n^2log(s))$，s为物品的件数，$log(s)$为二进制组的个数</p>
+<p><code>f[i][j]</code>状态数$i$由$n$个变成$n*log_2(s)$</p>
+<p>log2可这么求</p>
+<pre><code class="language-c++">#include &lt;cmath&gt;
+using namespace std;
+
+int main(){
+    int n;
+        cin &gt;&gt; n;
+    cout &lt;&lt; log2(n) &lt;&lt; endl;
+}
+</code></pre>
+<p>实际代码中，我们直接将求得log2结果与物品数上限N相乘得到新的N，这个N表示总状态数上限</p>
+<pre><code class="language-c++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 11010, V = 2010;
+int v[N], w[N];
+int f[V];
+
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    // cnt为分组序数
+    // cnt一定要放在循环外面，因为cnt是所有分组的序号
+    int cnt = 0;
+    // 对每个物品进行二进制组分组
+    for(int i = 1; i &lt;= n; i++){
+        int a, b, s;
+        // a为v[i], b为w[i], s为s[i]
+        cin &gt;&gt; a &gt;&gt; b &gt;&gt; s;
+        // k为分组内数量
+        int k = 1;
+        // 对s进行分二进制组
+        while(k &lt;= s){
+            // 第cnt个组含有k个件数
+            cnt++;
+            // 计算第cnt个组的体积，每件物品体积相同，都为a
+            v[cnt] = a * k;
+            // 计算第cnt个组的价值，每件物品价值相同，都为b
+            w[cnt] = b * k;
+            s -= k;
+            k *= 2;
+        }
+        // 剩余的s不能继续分为二进制组
+        if(s &gt; 0){
+            cnt++;
+            v[cnt] = a * s;
+            w[cnt] = b * s;
+        }
+    }
+
+    // 状态数由 n 变成了 n * log2(n)
+    n = cnt;
+    // 01背包问题
+    for(int i = 1; i &lt;= n; i++){
+        for(int j = m; j &gt;= v[i]; j--){
+            f[j] = max(f[j], f[j - v[i]] + w[i]);
+        }
+    }
+
+    cout &lt;&lt; f[m] &lt;&lt; endl;
+}
+</code></pre>
+<h4 id="_15">分组背包问题</h4>
+<blockquote>
+<p>模板题：https://www.acwing.com/problem/content/9/</p>
+</blockquote>
+<p><strong>特性：</strong>每组物品有若干个，同一组内的物品最多只能选一个。</p>
+<p>由选择某个物品变成了两步：</p>
+<ol>
+<li>首先选择分组</li>
+<li>选择了分组之后要在组内选择一个物品</li>
+</ol>
+<p>即进行两次01背包问题，第一次01背包问题将物品当成组，第二次在组内进行01背包问题</p>
+<h5 id="_16">朴素版</h5>
+<pre><code class="language-c++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 110, V = 110, S = 110;
+int v[N][S], w[N][S], s[N];
+int f[N][V];
+
+// i表示第i组，k表示第i组内的第k件物品，j表示背包容积
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for(int i = 1; i &lt;= n; i++){
+        cin &gt;&gt; s[i];
+        for(int k = 1; k &lt;= s[i]; k++)
+            cin &gt;&gt; v[i][k] &gt;&gt; w[i][k];
+    }
+
+    for(int i = 1; i &lt;= n; i ++){
+        for(int j = 0; j &lt;= m; j++){
+            f[i][j] = f[i - 1][j];
+            // 枚举背包内的每个物品
+            for(int k = 1; k &lt;= s[i]; k++){
+                // 注意这里的v[i][k]和w[i][k]，而不是v[i][j]和w[i][j]
+                if(v[i][k] &lt;= j)
+                    f[i][j] = max(f[i][j], f[i - 1][j - v[i][k]] + w[i][k]);
+            }
+        }
+    }
+
+    cout &lt;&lt; f[n][m] &lt;&lt; endl;
+}
+</code></pre>
+<h5 id="_17">优化版</h5>
+<p>与01背包问题优化思路完全一致</p>
+<pre><code class="language-c++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 110, V = 110, S = 110;
+int v[N][S], w[N][S], s[N];
+int f[V];
+
+// i表示第i组，k表示第i组内的第k件物品，j表示背包容积
+int main(){
+    int n, m;
+    cin &gt;&gt; n &gt;&gt; m;
+    for(int i = 1; i &lt;= n; i++){
+        cin &gt;&gt; s[i];
+        for(int k = 1; k &lt;= s[i]; k++)
+            cin &gt;&gt; v[i][k] &gt;&gt; w[i][k];
+    }
+
+    for(int i = 1; i &lt;= n; i ++){
+        // 枚举背包内的每个物品
+        for(int j = m; j &gt;= 0; j--){
+            for(int k = 1; k &lt;= s[i]; k++){
+                if(v[i][k] &lt;= j)
+                    // 注意这里的v[i][k]和w[i][k]，而不是v[i][j]和w[i][j]
+                    f[j] = max(f[j], f[j - v[i][k]] + w[i][k]);
+            }
+        }
+
+    }
+
+    cout &lt;&lt; f[m] &lt;&lt; endl;
+}
+</code></pre>
+<h3 id="dp">线性DP</h3>
+<p>线性DP即递推方程具有明显的线性关系，有一维线性和二维线性</p>
+<p>背包问题也属于线性DP</p>
+<h4 id="_18">数字三角形</h4>
+<blockquote>
+<p>https://www.acwing.com/problem/content/900/</p>
+</blockquote>
+<p><code>f[i][j]</code>表示走到第i行第j列的元素的路径之和</p>
+<h5 id="_19">朴素版</h5>
+<p>从上往下遍历</p>
+<p>状态方程<code>f[i][j] += max(f[i - 1][j - 1], f[i - 1][j])</code></p>
+<pre><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+// 三角形的整数可以为负数，要取max，因此边界值为负无穷（-INF）
+const int N = 510, INF = 0x3f3f3f3f;
+// 状态表达式，到达第i行第j列的元素时所有路径的集合，对应的值为路径数字之和最大值
+int f[N][N];
+int n;
+
+int main(){
+    cin &gt;&gt; n;
+    // 处理边界条件
+    for(int i = 0; i &lt;= n; i++)
+        //注意是 i + 1
+        for(int j = 0; j &lt;= i + 1; j++)
+            f[i][j] = -INF;
+    // 输入三角形
+    for(int i = 1; i &lt;= n; i++)
+        for(int j = 1; j &lt;= i; j++)
+            cin &gt;&gt; f[i][j];
+    // 从第二行开始计算状态方程
+    for(int i = 2; i &lt;= n; i++){
+        for(int j = 1; j &lt;= i; j++){
+            f[i][j] += max(f[i - 1][j - 1], f[i - 1][j]);
+        }
+    }
+
+    // 这里res一定要设置为负无穷，因为数字之和可能为负数
+    int res = -INF;
+    // 遍历三角形底层取得最大值
+    for(int j = 1; j &lt;= n; j++)
+        res = max(res, f[n][j]);
+
+    cout &lt;&lt; res &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(n^2)$</p>
+<p><strong>空间复杂度：</strong>$O(n^2)$</p>
+<p>缺点是需要处理边界条件</p>
+<h5 id="_20">优化版</h5>
+<p>从下往上遍历</p>
+<p>优化点：由于最终汇聚于一点，因此少了一次for循环，并且不需要处理边界条件</p>
+<pre><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 510;
+int f[N][N];
+int n;
+
+int main(){
+    cin &gt;&gt; n;
+    for(int i = 1; i &lt;= n; i++)
+        // 这里注意是j &lt;= i 而不是j &lt;= n
+        for(int j = 1; j &lt;= i; j++)
+            cin &gt;&gt; f[i][j];
+    for(int i = n; i &gt;= 1; i--){
+        for(int j = n; j &gt;= 1; j--){
+            f[i][j] += max(f[i + 1][j], f[i + 1][j + 1]);
+        }
+    }
+
+    cout &lt;&lt; f[1][1] &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(n^2)$</p>
+<p><strong>空间复杂度：</strong>$O(n^2)$</p>
+<h4 id="_21">最长上升子序列</h4>
+<h5 id="_22">朴素版</h5>
+<pre><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010;
+
+// 状态表达式，f[i]表示第i个元素结尾的所有单调递增子序列的集合
+// f[i]的值表示这些集合的序列最长度
+int f[N];
+// 存储序列
+int a[N];
+int n;
+
+int main(){
+    cin &gt;&gt; n;
+    for(int i = 1; i &lt;= n; i++)
+        cin &gt;&gt; a[i];
+    // res用于获取每个元素结尾的最大单调递增子序列长度
+    int res = 1;
+    for(int i = 1; i &lt;= n; i++){
+        f[i] = 1;
+        // 遍历前j个元素，每个元素结尾的最大单调递增子序列长度为f[j]
+        for(int j = 1; j &lt; i; j++){
+            // 如果第i个元素比第j个元素大，说明第i个元素可以加入该递增子序列，则长度加1
+            if(a[i] &gt; a[j]) f[i] = max(f[i], f[j] + 1);
+        }
+        res = max(res, f[i]);
+    }
+
+    cout &lt;&lt; res &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(n^2)$</p>
+<p><strong>空间复杂度：</strong>$O(n)$</p>
+<h5 id="_23">优化版</h5>
+<p>动态规划 + 二分查找</p>
+<pre><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010;
+// tails[i]记录序列尾部元素, len表示当前序列的长度
+int tails[N], len;
+int a[N];
+int n;
+
+int main(){
+    cin &gt;&gt; n;
+    for(int i = 1; i &lt;= n; i++)
+        cin &gt;&gt; a[i];
+    // 初始化tails
+    tails[++len] = a[1];
+    // 从第二个元素开始遍历
+    for(int i = 2; i &lt;= n; i++){
+        // 如果当前元素比序列尾部元素大，说明该元素可直接纳入该序列，序列长度加一
+        if(a[i] &gt; tails[len]) 
+            tails[++len] = a[i];
+        // 如果当前元素比序列尾部元素小，根据元素之间差距越小序列长度越可能长的原理
+        // 找到序列中比当前元素大的第一个元素，将其取代为当前元素a[i]
+        // 序列长度不变
+        else{
+            int l = 1, r = len;
+            while(l &lt; r){
+                int mid = (l + r) &gt;&gt; 1;
+                if(tails[mid] &gt;= a[i]) 
+                    r = mid;
+                else 
+                    l = mid + 1;
+            }
+            tails[l] = a[i];
+        }
+    }
+    // 最后输出len，len为最长子序列长度
+    cout &lt;&lt; len &lt;&lt; endl;
+}
+</code></pre>
+<p><strong>时间复杂度：</strong>$O(nlog(n))$</p>
+<p><strong>空间复杂度：</strong>$O(n)$</p>
+<h4 id="_24">最长公共子序列</h4>
+<h5 id="_25">朴素版</h5>
+<p>题解详见：https://www.acwing.com/solution/content/8111/</p>
+<pre><code class="language-C++">#include &lt;iostream&gt;
+using namespace std;
+
+const int N = 1010, M = 1010;
+int f[N][M];
+int n, m;
+char a[N], b[M];
+
+int main(){
+    cin &gt;&gt; n &gt;&gt; m &gt;&gt; a + 1 &gt;&gt; b + 1;
+    for(int i = 1; i &lt;= n; i++){
+        for(int j = 1; j &lt;= m; j++){
+            f[i][j] = max(f[i - 1][j], f[i][j - 1]);
+            if(a[i] == b[j]) f[i][j] = max(f[i][j], f[i - 1][j - 1] + 1);
+        }
+    }
+
+    cout &lt;&lt; f[n][m] &lt;&lt; endl;
+}
+</code></pre>
+<h2 id="dp_1">区间DP</h2>
+<p>https://www.acwing.com/problem/content/284/</p>
+<pre><code>
+</code></pre>
+<h2 id="_26">小技巧</h2>
+<h3 id="memset">memset</h3>
+<blockquote>
+<p>详见https://blog.csdn.net/Supreme7/article/details/115431235</p>
+</blockquote>
+<pre><code>#include &lt;cstring&gt;
+void *memset(void *str, int c, size_t n)
+</code></pre>
+<p>给前n个字节赋值c   </p>
+<p>常用</p>
+<ul>
+<li>初始化为0:：memset(a,-1,sizeof(a))</li>
+<li>初始化为-1：memset(a,0,sizeof(a))</li>
+<li>初始化为无穷大：memset(a,0x3f,sizeof(a))</li>
+</ul>
+<h3 id="_27">无穷大</h3>
+<blockquote>
+<p>详见 https://blog.csdn.net/qq_40816078/article/details/82459599#:~:text=准确的说：%20inf</p>
+</blockquote>
+<p>一般设置无穷大为INF=0x3f3f3f3f</p>
+<p>初始化为无穷大：memset(a,0x3f,sizeof(a))</p>
+<h2 id="stl">STL容器</h2>
+<h3 id="_28">优先级队列</h3>
+<p>https://blog.csdn.net/weixin_36888577/article/details/79937886</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
+      
+    
+  </body>
+</html>
