@@ -4,11 +4,31 @@ site_name: winsonYe
 nav:
   - Home: index.md
   - 开发: 
+    - 计算机基础:
+      - 操作系统
+      - 计算机网络
+      - 计算机组成原理
+      - 数据结构与算法
+      - Linux: computer_basic/Linux.md 
     # - 前端开发: - software_development/frontend/frontend.md
     - 后端开发: 
-      - 面经: software_development/backend/interview_experiences.md
+      - MySQL: software_development/backend/MySQL.md
+      - Redis: software_development/backend/Redis.md
+      - 中间件:
+        - Kafka
+      - 语言: 
+        - C++: software_development/backend/language/C++.md
+        - Rust: software_development/backend/language/Rust.md
+        - Java: software_development/backend/language/Java.md
+        - Go: software_development/backend/language/Go.md
+      - 面经: software_development/backend/interview_experiences.md      
+      - 项目:
+        - 工程问题: software_development/backend/Project/project_knowledge.md      
+        - 逸仙东华资源共享平台: software_development/backend/Project/逸仙东华/project_review.md
   - 算法题: 
     - 算法基础: algorithm/algorithm_basic.md
     - leetcode刷题笔记: algorithm/leetcode.md
+  - 杂谈:
+    - Mac的一些问题: util/Mac.md
   - About: about.md
 
