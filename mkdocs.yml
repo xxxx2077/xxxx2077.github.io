@@ -16,6 +16,9 @@ nav:
       - Redis: software_development/backend/Redis.md
       - 中间件:
         - Kafka
+      - DevOps:
+        - Docker: software_development/backend/DevOps/Docker.md
+        - k8s
       - 语言: 
         - C++: software_development/backend/language/C++.md
         - Rust: software_development/backend/language/Rust.md
