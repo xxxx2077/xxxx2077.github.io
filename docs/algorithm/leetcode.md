@@ -21,6 +21,203 @@ DFS&回溯：leetcode934、685、1102、531、533、113、332、337
 贪心：leetcode55、435、621、452
 字典树：leetcode820、208、648
 
+## 数组
+
+### 704 二分查找
+
+```c++
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        int n = nums.size();
+        // 定义搜索范围为左闭右开
+        // 初始搜索范围为[o,n)
+        int l = 0, r = n;
+        // 因为是左闭右开，所以l == r时[l,r)没有意义
+        // 因此是l < r 不是l <= r
+        while(l < r){
+            // 二分搜索核：取中间索引
+            int mid = l + r >> 1;
+            // 如果target < nums[mid] 说明右边界r需要更新，更新为mid
+            // 不是r == mid - 1，因为这是左闭右开区间，target一定不在mid上
+            if(target < nums[mid]) r = mid;
+            // 如果target > nums[mid] 说明左边界l需要更新，更新为mid + 1
+            // l == mid + 1，因为左闭右开区间，target可能为在mid + 1
+            else if(target > nums[mid]) l = mid + 1;
+            // 如果target == nums[mid]，mid为我们需要的索引，返回
+            else    return mid;
+        }
+        return -1;
+    }
+};
+```
+
+时间复杂度：O(log n)
+
+空间复杂度：O(1)
+
+
+
+### 27 移除元素
+
+本题重点：数组删除第i个元素的方法：将i之后的元素依次左移1位
+
+#### 暴力做法
+
+```C++
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        int size = nums.size();
+        for(int i = 0; i < size; i++){
+            // 找到数值等于val的元素
+            if(val == nums[i]){
+                // 数组删除第i个元素的方法：将i之后的元素依次左移1位
+                for(int j = i + 1; j < size; j++){
+                    nums[j - 1] = nums[j];
+                }
+                // 删除第i个元素，第i个元素变成新元素，下一次依然从i开始遍历
+                i--;
+                // 删除元素后，数组大小减1
+                size--;
+            }
+        }
+        // 数组剩余的都是不等于val的元素
+        // 因此返回数组大小即可
+        return size;
+    }
+};
+```
+
+时间复杂度：$O(n^2)$
+
+空间复杂度：$O(1)$
+
+
+
+#### 双指针法
+
+```C++
+class Solution {
+public:
+    int removeElement(vector<int>& nums, int val) {
+        // 慢指针指向新数组末尾元素的下一个位置（插入的位置）
+        // 新数组元素：数值不等于val的元素
+        int slowIndex = 0;
+        // 快指针指向从左到右数值不等于val的第一个元素
+        for(int fastIndex = 0; fastIndex < nums.size(); fastIndex++){
+            if(val != nums[fastIndex]){
+                // 如果fastIndex指向的元素不等于val，需要将其加入到新数组中
+                nums[slowIndex] = nums[fastIndex];
+                slowIndex++;
+            }
+        }
+        // 慢指针指向新数组末尾元素的下一个位置
+        // 因为元素索引从0开始，所以slowIndex就是元素个数
+        return slowIndex;
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+- 只遍历了一次数组
+
+空间复杂度：$O(1)$
+
+
+
+### 977 有序数组的平方
+
+#### 暴力做法
+
+每个数平方之后再使用`sort()`排序
+
+```C++
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& nums) {
+        for(int i = 0; i < nums.size(); i++){
+            nums[i] *= nums[i];
+        }
+        sort(nums.begin(),nums.end());
+        return nums;
+    }
+};
+```
+
+时间复杂度： $O(n + nlogn)$
+
+空间复杂度： $O(n)$
+
+
+
+#### 双指针法
+
+观察数组，我们可以发现，位于数组两端的数的绝对值比中间大，因此它们的平方值也比中间大
+
+因此我们可以从两端向中间遍历比较，将较大值放入新数组中
+
+```C++
+class Solution {
+public:
+    vector<int> sortedSquares(vector<int>& nums) {
+        int n = nums.size();
+        // 新数组末尾元素的位置
+        int k = n - 1;
+        // 新开一个数组
+        vector<int> res(n, 0);
+        // 左闭右闭区间[0,k]
+        int left = 0, right = k;
+        // 左闭右闭区间[left,right]
+        while(left <= right){
+            int leftSquare = nums[left] * nums[left];
+            int rightSquare = nums[right] * nums[right];
+            if(leftSquare > rightSquare){
+                // 题目要求数组非递减顺序，因此较大值放在数组末尾
+                res[k--] = leftSquare;
+                left++;
+            }
+            else{
+                res[k--] = rightSquare;
+                right--;
+            }
+        }
+        return res;
+    }
+};
+```
+
+时间复杂度： $O(n + nlogn)$
+
+空间复杂度： $O(n)$
+
+
+
+### 209 长度最小的子数组
+
+#### 暴力做法（不能通过）
+
+```C++
+class Solution {
+public:
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int len = INT_MAX;
+        for(int i = 0; i < nums.size(); i++){
+            int sum = 0;
+            for(int j = i; j < nums.size(); j++){
+                sum += nums[j];
+                if(sum >= target)
+                    len = min(len, j - i + 1);
+            }
+        }
+        return len == INT_MAX ? 0 : len;
+    }
+};
+```
+
+
+
 ## 1 两数之和
 
 ### 暴力版

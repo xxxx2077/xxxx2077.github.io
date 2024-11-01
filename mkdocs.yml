@@ -10,15 +10,18 @@ nav:
       - 计算机组成原理
       - 数据结构与算法
       - Linux: computer_basic/Linux.md 
-    # - 前端开发: - software_development/frontend/frontend.md
+    - 前端开发: 
     - 后端开发: 
       - MySQL: software_development/backend/MySQL.md
       - Redis: software_development/backend/Redis.md
       - 中间件:
-        - Kafka
+        - Kafka:
+        - Tomcat:
+        - Nginx:
       - DevOps:
         - Docker: software_development/backend/DevOps/Docker.md
-        - k8s
+        - k8s:
+        - tomcat:
       - 语言: 
         - C++: software_development/backend/language/C++.md
         - Rust: software_development/backend/language/Rust.md
