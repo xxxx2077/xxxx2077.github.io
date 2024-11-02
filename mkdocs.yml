@@ -15,13 +15,13 @@ nav:
       - MySQL: software_development/backend/MySQL.md
       - Redis: software_development/backend/Redis.md
       - 中间件:
-        - Kafka:
-        - Tomcat:
-        - Nginx:
+        - Kafka
+        - Tomcat
+        - Nginx
       - DevOps:
         - Docker: software_development/backend/DevOps/Docker.md
-        - k8s:
-        - tomcat:
+        - k8s
+        - tomcat
       - 语言: 
         - C++: software_development/backend/language/C++.md
         - Rust: software_development/backend/language/Rust.md
