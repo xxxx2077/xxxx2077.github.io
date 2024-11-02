@@ -10,7 +10,7 @@ nav:
       - 计算机组成原理
       - 数据结构与算法
       - Linux: computer_basic/Linux.md 
-    - 前端开发: 
+    - 前端开发
     - 后端开发: 
       - MySQL: software_development/backend/MySQL.md
       - Redis: software_development/backend/Redis.md
