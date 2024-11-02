@@ -216,6 +216,248 @@ public:
 };
 ```
 
+时间复杂度：$O(n^2)$
+
+空间复杂度：$O(1)$
+
+
+
+#### 双指针法
+
+```C++
+class Solution {
+public:
+    const int INF = 0x3f3f3f3f;
+    int minSubArrayLen(int target, vector<int>& nums) {
+        int leftIndex = 0;
+        int len = INF;
+        int sum = 0;
+        // 移动滑动窗口出口
+        for(int rightIndex = leftIndex; rightIndex < nums.size(); rightIndex++){
+            sum += nums[rightIndex];
+            // 移动滑动窗口入口
+            while(sum >= target){
+                len = min(len, rightIndex - leftIndex + 1);
+                // 关键步骤，不要忘记！
+                sum -= nums[leftIndex];
+                leftIndex++;
+            }
+        }
+        return len == INF ? 0 : len;
+    }
+};
+```
+
+时间复杂度：O(n)
+
+- rightIndex移动了n次，leftIndex移动了n次，共移动2n次
+
+空间复杂度：O(1)
+
+
+
+### 59 螺旋矩阵II
+
+> 思路参考：[https://programmercarl.com/0059.%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II.html#%E6%80%9D%E8%B7%AF](https://programmercarl.com/0059.%E8%9E%BA%E6%97%8B%E7%9F%A9%E9%98%B5II.html#%E6%80%9D%E8%B7%AF)
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> generateMatrix(int n) {
+       vector<vector<int>> res(n, vector<int>(n, 0));
+       // 确定每一圈的起点(startx, starty)
+       int startx = 0, starty = 0; 
+       // 确定遍历的圈数
+       // 计算方法：以第一圈为例，走完第一圈，第一行和最后一行都被遍历过，对称遍历
+       // 因此遍历完整的圈数量为n/2次
+       // 如果n是奇数，最后会剩下中心点mid未遍历，额外处理
+       int loop = n / 2;
+       // 我们规定每个圈分为四次遍历，每次遍历左闭右开区间（不包含每行/每列最后一个元素）
+       // offset表示右边界收缩个数
+       // 用于计算每行/每列遍历长度 n - offset
+       int offset = 1;
+       // count为待填充元素值
+       int count = 1;
+       while(loop--){
+            // 提前定义坐标，接下来遍历的时候，每次坐标计算都需要使用上一次坐标位置
+            int i = startx, j = starty;
+            // 上行遍历长度n - offset,遍历区间为[starty, n - offset)
+            // 这里条件为j < n - offset 因为是左闭右开区间
+            for(j; j < n - offset; j++){
+                res[i][j] = count++;
+            }
+            // 右列遍历长度n - offset,遍历区间为[startx, n - offset)
+            // 这里条件为i < n - offset 因为是左闭右开区间
+            for(i; i < n - offset; i++){
+                res[i][j] = count++;
+            }
+            // 下行遍历长度n - offset,遍历区间为[n - offset, starty)
+            // 这里条件为j > starty 因为是左闭右开区间
+            for(j; j > starty; j--){
+                res[i][j] = count++;
+            }
+            // 左列遍历长度n - offset,遍历区间为[n - offset, startx)
+            // 这里条件为i > startx 因为是左闭右开区间
+            for(i; i > startx; i--){
+                res[i][j] = count++;
+            }
+            // 遍历一圈完成，更新参数
+            // 更新下一个起点（沿右下对角线）
+            startx++;
+            starty++;
+            // 更新下一次遍历长度（每走一圈，遍历长度减1）
+            // 为什么减1: 因为每走一圈待遍历区间的左边界和右边界都会收缩
+            // offset表示待遍历区间的右边界收缩个数
+            // 我们的左边界永远不会被遍历，因为每次我们都设定左边界为新的startx/starty
+            // 因此只有右边界就被遍历过了，需要减1，对应offset + 1
+            offset++;
+       }
+       if(n % 2 != 0){
+            int mid = n / 2;
+            res[mid][mid] = count;
+       }
+       return res;
+    }
+};
+```
+
+时间复杂度 $O(n^2)$: 模拟遍历二维矩阵的时间
+
+空间复杂度 $O(1)$
+
+
+
+### 区间和
+
+> 链接
+>
+> https://kamacoder.com/problempage.php?pid=1070
+
+本题就是前缀和模板
+
+
+
+
+
+### 总结
+
+> 数组总结补充参考
+>
+> https://programmercarl.com/%E6%95%B0%E7%BB%84%E6%80%BB%E7%BB%93%E7%AF%87.html#%E6%80%BB%E7%BB%93
+
+#### 数组的双指针法
+
+##### 同侧双指针
+
+> 对应题目
+>
+> - 27
+> - 209
+
+同侧双指针：指指针slowIndex和fastIndex都从左到右遍历
+
+这类方法通常应用于以下for循环的优化
+
+```C++
+for(int i = 0; i < nums.size(); i++){
+		for(int j = i; j < nums.size(); j++){
+			//算法步骤
+	}
+}
+```
+
+在以上for循环中，先移动j满足题意后，再移动i
+
+移动i的过程重复了移动j的过程
+
+例如：
+
+- 第一次i=0，假设j到达5满足题意停止
+- 第二次i=1，j要重新从0出发，重新经历[0,5]的过程才能到达新元素nums[6]
+
+重新经历[0,5]这一过程是多余的，可以被优化的，因此我们引入双指针
+
+**在双指针中**
+
+- 第一次slowIndex = 0（对应i = 0），fastIndex = 0（对应j = 0）, fastIndex到达5满足题意停止
+- 接下来不需要重新经历[0,5]的过程，只需要将slowIndex加一（对应i=1）
+
+模板
+
+```c++
+for(int fastIndex = 0; i < nums.size(); i++){
+		while(//题意){
+				slowIndex++;
+		}
+}
+```
+
+
+
+##### 异侧双指针
+
+> 题目：
+>
+> - 977
+
+从数组两边往中间遍历，用于对数组两侧元素依次执行算法操作
+
+```C++
+int leftIndex = 0, rightIndex = nums.size() - 1;
+while(leftIndex <= rightIndex){
+		if(nums[leftIndex]满足...){
+				/...
+				leftIndex++;
+		}
+		if(nums[rightIndex]满足...){
+				/...
+				rightIndex--;
+		}
+}
+```
+
+
+
+## 链表
+
+### 203 移除链表元素
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        // 为了保证操作的统一性，引入哑节点
+        ListNode* dummyNode = new ListNode(-1,head);
+        ListNode* cur = dummyNode;
+        // 边界条件：判断要删除的节点是否为空
+        while(cur->next != nullptr){
+            if(cur->next->val == val){
+                ListNode* tmp = cur->next;
+                cur->next = tmp->next;
+                delete tmp;
+            }
+            // 这里要注意：一定要用else
+            // 因为删了节点之后，cur->next改变了，需要先判断cur->next是否为空再取cur->next->val
+            else
+                cur = cur->next;
+        }
+        head = dummyNode->next;
+        delete dummyNode;
+        return head;
+    }
+};
+```
+
 
 
 ## 1 两数之和
