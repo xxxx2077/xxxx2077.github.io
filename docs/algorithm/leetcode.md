@@ -422,6 +422,77 @@ while(leftIndex <= rightIndex){
 
 ### 203 移除链表元素
 
+移除链表元素本质上步骤为：
+
+1. 找到待移除元素curNode的前驱节点prevNode和后继节点nextNode(curNode->next)
+2. prevNode->next = curNode->next 
+3. 释放内存delete curNode
+
+有两种做法：原链表操作和引入哑节点
+
+- 原链表操作意味着需要分两步操作
+
+  1. 因为头部节点没有前驱节点，因此需要额外处理。处理方法很简单：
+
+     ```C++
+     ListNode* tmp = head;
+     head = head->next
+     delete tmp;
+     ```
+
+  2. 其他节点正常处理
+
+- 引入哑节点
+
+  - 引入哑节点有个好处是，所有节点（包括头节点）能够采用统一的操作，因为它让头节点也拥有了前驱节点
+
+#### 原链表操作
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeElements(ListNode* head, int val) {
+        if(!head)
+            return head;
+        while(head && head->val == val){
+            ListNode* tmp = head;
+            head = head->next;
+            delete tmp;
+        }
+        
+        //到这一步，head有两种可能，nullptr 或者 head->val != val
+        ListNode* cur = head;
+        // cur可能为nullptr，因此需要判断cur是否为nullptr再取cur->next
+        // cur->next可能为空，所以需要判断cur->next是否为nullptr再取cur->next->val
+        while(cur && cur->next){
+            if(cur->next->val == val){
+                ListNode* tmp = cur->next;
+                cur->next = cur->next->next;
+                delete tmp;
+            }
+            else
+                cur = cur->next;
+        }
+
+        return head;
+    }
+};
+```
+
+
+
+#### 引入哑节点
+
 ```C++
 /**
  * Definition for singly-linked list.
@@ -457,6 +528,401 @@ public:
     }
 };
 ```
+
+
+
+### 707 设计链表
+
+dummyNode对应索引为-1，之后的节点才是真节点，索引从0开始
+
+**for循环遍历方法**
+
+`i`对应真节点的索引
+
+因此`i == 0`时，`cur = cur->next`执行一次到达索引0的元素
+
+- 遍历到指定index的元素：`for(int i = 0; i <= index; i++)`
+- 遍历到指定index元素的前一个元素：`for(int i = 0; i < index; i++)`
+
+```C++
+class MyLinkedList {
+private:
+    ListNode *dummyNode;
+    int size;
+public:
+    MyLinkedList() {
+        dummyNode = new ListNode();
+        size = 0;
+    }
+    
+    int get(int index) {
+        if(index < 0 || index >= size)
+            return -1;
+        ListNode* cur = dummyNode;
+        for(int i = 0; i <= index; i++){
+            cur = cur->next;
+        }
+        return cur->val;
+    }
+    
+    void addAtHead(int val) {
+        ListNode* newHead = new ListNode(val);
+        newHead->next = dummyNode->next;
+        dummyNode->next = newHead;
+        size++;
+    }
+    
+    void addAtTail(int val) {
+        ListNode* newNode = new ListNode(val);
+        ListNode* cur = dummyNode;
+        while(cur->next){
+            cur = cur->next;
+        }
+        cur->next = newNode;
+        size++;
+    }
+    
+    void addAtIndex(int index, int val) {
+        if(index < 0 || index > size)  
+            return;        
+        ListNode* cur = dummyNode;
+        for(int i = 0; i < index; i++){
+            cur = cur->next;
+        }
+        ListNode* newNode = new ListNode(val,cur->next);
+        cur->next = newNode;
+        size++;
+    }
+    
+    void deleteAtIndex(int index) {
+        if(index < 0 || index >= size)
+            return;
+        ListNode* cur = dummyNode;
+        for(int i = 0; i < index; i++){
+            cur = cur->next;
+        }
+        ListNode* tmp = cur->next;
+        cur->next = cur->next->next;
+        delete tmp;
+        size--;
+    }
+};
+
+/**
+ * Your MyLinkedList object will be instantiated and called as such:
+ * MyLinkedList* obj = new MyLinkedList();
+ * int param_1 = obj->get(index);
+ * obj->addAtHead(val);
+ * obj->addAtTail(val);
+ * obj->addAtIndex(index,val);
+ * obj->deleteAtIndex(index);
+ */
+```
+
+时间复杂度: 涉及 `index` 的相关操作为 O(index), 其余为 O(1)
+
+空间复杂度: O(n)
+
+
+
+### 206 反转链表
+
+#### 迭代版
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        ListNode* prev = nullptr;
+        ListNode* cur = head;
+        while(cur){
+            ListNode* next = cur->next;
+            cur->next = prev;
+            prev = cur;
+            cur = next;
+        }
+      	// cur指向nullptr, prev指向原链表最后一个元素（新链表头节点）
+        return prev;
+    }
+};
+```
+
+**复杂度分析**
+
+- 时间复杂度：*O*(*n*)，其中 *n* 是链表的长度。需要遍历链表一次。
+- 空间复杂度：*O*(1)。
+
+#### 递归版
+
+**和迭代法同一思路的递归版**
+
+核心思路：
+
+- 通过递归函数依次将链表节点压栈，使算法到达链表最后一个节点再进行反转操作
+- 每次递归函数执行同一反转操作，但是返回的是反转后的函数头
+- 反转操作cur->next = prev（与迭代法相同）
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+private:
+    ListNode* reverse(ListNode* prev, ListNode* cur){
+        // 当cur为空，说明已经到达最后一个链表节点
+        // 此时最后一个链表节点为prev，它就是反转后的头节点
+        if(!cur)
+            return prev;
+        ListNode* newHead = reverse(cur, cur->next);
+        cur->next = prev;
+        return newHead;
+    }
+public:
+    ListNode* reverseList(ListNode* head) {
+        return reverse(nullptr,head);
+    }
+};
+```
+
+这是另一种递归版
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if(!head || !head->next)
+            return head;
+        ListNode* newHead = reverseList(head->next);
+        head->next->next = head;
+        head->next = nullptr;
+        return newHead;
+    }
+};
+```
+
+**复杂度分析**
+
+时间复杂度：O(n)，其中 n 是链表的长度。需要对链表的每个节点进行反转操作。
+
+空间复杂度：O(n)，其中 n 是链表的长度。空间复杂度主要取决于递归调用的栈空间，最多为 n 层。
+
+
+
+### 24 两两交换链表中的节点
+
+> 这道题看这个解析吧
+>
+> [https://programmercarl.com/0024.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9.html#%E6%80%9D%E8%B7%AF](https://programmercarl.com/0024.%E4%B8%A4%E4%B8%A4%E4%BA%A4%E6%8D%A2%E9%93%BE%E8%A1%A8%E4%B8%AD%E7%9A%84%E8%8A%82%E7%82%B9.html#%E6%80%9D%E8%B7%AF)
+
+解答几个问题
+
+- 为什么cur取 待交换元素的前一个位置
+  - 因为交换之后，还要保持链表相连，cur取上一次交换后的末尾位置，能够保证链表相连
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* swapPairs(ListNode* head) {
+        ListNode* dummyNode = new ListNode(-1, head);
+        ListNode* cur = dummyNode;
+        while (cur->next && cur->next->next) {
+            // 保存原有的几个元素
+            ListNode* tmp1 = cur->next;
+            ListNode* tmp2 = cur->next->next;
+            ListNode* tmp3 = cur->next->next->next;
+            // 调整元素位置
+            cur->next = tmp2;
+            cur->next->next = tmp1;
+            cur->next->next->next = tmp3;
+            // 移动到下一个位置
+            cur = cur->next->next;
+        }
+        ListNode* newHead = dummyNode->next;
+        delete dummyNode;
+        return newHead;
+    }
+};
+```
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+
+
+### 19 删除链表的第N个节点
+
+> 可参考
+> https://programmercarl.com/0019.%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B9.html#%E6%80%9D%E8%B7%AF
+
+为什么需要移动n + 1步
+
+- 题目要求的是倒数第n个节点
+- 我们假设fast刚好位于末尾元素的下一个位置，值为nullptr
+- 为了方便删除倒数第n个节点，slow需要位于倒数第n + 1位置
+- 因此slow与fast位置分别为第n + 1个元素和第0个元素（从右往左数），fast需要移动n + 1次
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode* dummyNode = new ListNode(-1, head);
+        ListNode *fast = dummyNode, *slow = dummyNode;
+        // fast需要移动n + 1步，以保证slow刚好在倒数第n个节点的前一个节点
+        for (int i = 1; i <= n + 1 && fast; i++) {
+            fast = fast->next;
+        }
+        while (fast) {
+            fast = fast->next;
+            slow = slow->next;
+        }
+
+        ListNode* tmp = slow->next;
+        slow->next = slow->next->next;
+        delete tmp;
+
+        ListNode* newHead = dummyNode->next;
+        delete dummyNode;
+        return newHead;
+    }
+};
+```
+
+- 时间复杂度: O(n)
+- 空间复杂度: O(1)
+
+
+
+## 160 相交链表
+
+https://leetcode.cn/problems/intersection-of-two-linked-lists/?envType=study-plan-v2&envId=top-100-liked
+
+### 容易理解的方法
+
+1. 计算两个链表的长度
+2. 计算长度差gap
+3. 长的一侧先走gap个长度，走完后，两个链表处于同一长度
+4. 两个链表同时遍历，如果p1 == p2，则相遇；如果p1(p2) == nullptr，说明无法相遇
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* getIntersectionNode(ListNode* headA, ListNode* headB) {
+        ListNode *p1 = headA, *p2 = headB;
+        int lenA = 0, lenB = 0;
+        while (p1) {
+            lenA++;
+            p1 = p1->next;
+        }
+        while (p2) {
+            lenB++;
+            p2 = p2->next;
+        }
+        p1 = headA;
+        p2 = headB;
+        if (lenB > lenA) {
+            swap(lenB, lenA);
+            swap(p1,p2);
+        }
+        int gap = lenA - lenB;
+        while (gap--) {
+            p1 = p1->next;
+        }
+        while (p1) {
+            if(p1 == p2)
+                return p1;
+            p1 = p1->next;
+            p2 = p2->next;
+        }
+        return nullptr;
+    }
+};
+```
+
+- 时间复杂度：O(n + m)
+- 空间复杂度：O(1)
+
+### 难以理解的方法
+
+拼接链表A和链表B，拼接后，两个链表同时开始往尾部遍历，
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        ListNode* a = headA, *b = headB;
+        while(a != b){
+            a = a != nullptr ? a->next : headB;
+            b = b != nullptr ? b->next : headA;
+        }
+        return a;
+    }
+};
+```
+
+
 
 
 
@@ -2358,34 +2824,6 @@ public:
 
 
 
-## 160 相交链表
-
-https://leetcode.cn/problems/intersection-of-two-linked-lists/?envType=study-plan-v2&envId=top-100-liked
-
-拼接链表A和链表B，拼接后，两个链表同时开始往尾部遍历，
-
-```C++
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
- * };
- */
-class Solution {
-public:
-    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
-        ListNode* a = headA, *b = headB;
-        while(a != b){
-            a = a != nullptr ? a->next : headB;
-            b = b != nullptr ? b->next : headA;
-        }
-        return a;
-    }
-};
-```
-
 
 
 ## 200 岛屿数量
@@ -2568,74 +3006,7 @@ public:
 
 > 我没有使用按秩合并
 
-## 206 反转链表
 
-### 迭代版
-
-```C++
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode() : val(0), next(nullptr) {}
- *     ListNode(int x) : val(x), next(nullptr) {}
- *     ListNode(int x, ListNode *next) : val(x), next(next) {}
- * };
- */
-class Solution {
-public:
-    ListNode* reverseList(ListNode* head) {
-        ListNode* prev = nullptr;
-        ListNode* cur = head;
-        while(cur){
-            ListNode* next = cur->next;
-            cur->next = prev;
-            prev = cur;
-            cur = next;
-        }
-      	// cur指向nullptr, prev指向原链表最后一个元素（新链表头节点）
-        return prev;
-    }
-};
-```
-
-**复杂度分析**
-
-- 时间复杂度：*O*(*n*)，其中 *n* 是链表的长度。需要遍历链表一次。
-- 空间复杂度：*O*(1)。
-
-### 递归版
-
-```C++
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode() : val(0), next(nullptr) {}
- *     ListNode(int x) : val(x), next(nullptr) {}
- *     ListNode(int x, ListNode *next) : val(x), next(next) {}
- * };
- */
-class Solution {
-public:
-    ListNode* reverseList(ListNode* head) {
-        if(!head || !head->next)
-            return head;
-        ListNode* newHead = reverseList(head->next);
-        head->next->next = head;
-        head->next = nullptr;
-        return newHead;
-    }
-};
-```
-
-**复杂度分析**
-
-时间复杂度：O(n)，其中 n 是链表的长度。需要对链表的每个节点进行反转操作。
-
-空间复杂度：O(n)，其中 n 是链表的长度。空间复杂度主要取决于递归调用的栈空间，最多为 n 层。
 
 ## 209 长度最小的子数组
 
@@ -3762,5 +4133,19 @@ int main()
 	return 0;
 }
 
+```
+
+## 其他细节
+
+```C++
+while(index--){
+}
+```
+
+等价于
+
+```C++
+for(int i = 0; i < index; i++){
+}
 ```
 
