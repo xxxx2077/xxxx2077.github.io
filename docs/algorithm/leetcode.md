@@ -4,7 +4,6 @@
 
 ### 华为推荐题型List
 
-⚠️机考题型参考(如有竞赛经历找群主确认是否可以免考)：
 递归：leetcode70、112、509
 分治：leetcode23、169、240
 单调栈：leetcode84、85、739、503
@@ -839,11 +838,11 @@ public:
 
 
 
-## 160 相交链表
+### 160 相交链表
 
 https://leetcode.cn/problems/intersection-of-two-linked-lists/?envType=study-plan-v2&envId=top-100-liked
 
-### 容易理解的方法
+#### 容易理解的方法
 
 1. 计算两个链表的长度
 2. 计算长度差gap
@@ -896,7 +895,7 @@ public:
 - 时间复杂度：O(n + m)
 - 空间复杂度：O(1)
 
-### 难以理解的方法
+#### 难以理解的方法
 
 拼接链表A和链表B，拼接后，两个链表同时开始往尾部遍历，
 
@@ -923,6 +922,698 @@ public:
 ```
 
 
+
+
+
+### 141 环形链表
+
+根据题意：一个节点没有环
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    bool hasCycle(ListNode *head) {
+        if(head == nullptr || head->next == nullptr)
+            return false;
+        ListNode* fast = head, *slow = head;
+        while(true){
+            if(fast == nullptr || fast->next == nullptr)
+                return false;
+            fast = fast->next->next;
+            slow = slow->next;
+          	if(fast == slow) 
+              	break;
+        }
+        return true;
+    }
+};
+```
+
+### 142 环形链表II
+
+思路
+
+- 设定快慢指针，如果有环，快指针一定能和慢指针相遇（反推也成立：能相遇说明有环）；如果没环，快指针会到达链表末尾变为nullptr
+- 本题还需要找环的入口，通过推理我们得到：相遇后，设定一个指针在head起始位置，另一个在相遇位置，两个指针同时走相同步数一定能在环入口相遇
+
+具体推导证明过程见[https://programmercarl.com/0142.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8II.html#%E6%80%9D%E8%B7%AF](https://programmercarl.com/0142.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8II.html#%E6%80%9D%E8%B7%AF)
+
+```C++
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *detectCycle(ListNode *head) {
+        ListNode* fast = head, *slow = head;
+        // 注意边界条件
+        while(fast && fast->next){
+            fast = fast->next->next;
+            slow = slow->next;
+            // fast == slow说明存在环，但是仍然不知道环的入口在哪里
+            // 为了寻找环的入口进行额外的操作
+            if(fast == slow){
+                // 通过推导，设定一个指针在head起始位置，另一个在相遇位置
+                // 两个指针同时走相同步数一定能在环入口相遇
+                ListNode* p1 = fast;
+                ListNode* p2 = head;
+                while(p1 != p2){
+                    p1 = p1->next;
+                    p2 = p2->next;
+                }
+                return p1;
+            }
+        }
+        // fast != slow说明不存在环，当fast为空或fast->next为空停止循环
+        return nullptr;
+    }
+};
+```
+
+
+
+## 动态规划
+
+### 509 斐波那契数
+
+https://leetcode.cn/problems/fibonacci-number/description/
+
+#### 递归
+
+```C++
+class Solution {
+public:
+    int fib(int n) {
+        if(n == 0)
+            return 0;
+        if(n == 1)
+            return 1;
+        return fib(n - 1) + fib(n - 2); 
+    }
+};
+```
+
+- 时间复杂度：$O(2^n)$
+- 空间复杂度：$O(n)$，算上了编程语言中实现递归的系统栈所占空间
+
+#### 动态规划
+
+```C++
+class Solution {
+public:
+    int fib(int n) {
+        if(n <= 1)
+            return n;
+       vector<int> num(n + 1);
+       num[0] = 0;
+       num[1] = 1;
+       for(int i = 2; i <= n; i++){
+            num[i] = num[i - 1] + num[i - 2];
+       } 
+       return num[n];
+    }
+};
+```
+
+- 时间复杂度：$O(n)$
+- 空间复杂度：$O(1)$
+
+#### 动态规划优化
+
+```C++
+class Solution {
+public:
+    int fib(int n) {
+        if(n <= 1)
+            return n;
+        int a = 0;
+        int b = 1;
+        int c;
+        for(int i = 2; i <= n; i++){
+            c = a + b;
+            a = b;
+            b = c;
+        }
+        return c;
+    }
+};
+```
+
+- 时间复杂度：$O(n)$
+- 空间复杂度：$O(1)$
+
+### 70 爬楼梯
+
+https://leetcode.cn/problems/climbing-stairs/description/
+
+爬楼梯和斐波那契数不同之处在于：初始值不同
+
+- 爬楼梯n == 1, dp[1] = 1; n == 2, dp[2] = 2
+- 斐波那契数n == 0, dp[0] = 0; n == 1, dp[1] = 1; n == 2, dp[2] = 1;
+
+#### 解法一：递归
+
+```C++
+class Solution {
+public:
+    int climbStairs(int n) {
+        if(n <= 1)
+            return 1;
+        return climbStairs(n - 1) + climbStairs(n - 2);
+    }
+};
+```
+
+**时间复杂度：$O(2^n)$**
+
+可视为二叉树，树高为n，节点数为$2^n$，遍历搜索树需要$2^n$次
+
+**空间复杂度：$O(n)$**
+
+n个栈空间
+
+#### 解法二：记忆化搜索
+
+```c++
+class Solution {
+private:
+    vector<int> m;
+    int dfs(int n){
+        if(n <= 1)
+            return 1;
+        int &res = m[n];
+        if(res)
+            return res;
+        return dfs(n - 1) + dfs(n - 2);
+    }
+public:
+    int climbStairs(int n) {
+        m.resize(n + 1);
+        return dfs(n);
+    }
+};
+```
+
+**时间复杂度：$O(n)$**
+
+每个状态只会计算一次，共n个状态
+
+**空间复杂度：$O(n)$**
+
+n个栈空间
+
+#### 解法三：动态规划
+
+```c++
+class Solution {
+public:
+    vector<int> dp;
+    int climbStairs(int n) {
+        dp.resize(n + 1);
+        dp[0] = 1;
+        dp[1] = 1;
+        for(int i = 2; i <= n; i++)
+            dp[i] = dp[i - 1] + dp[i - 2];
+        return dp[n];
+    }
+};
+```
+
+**时间复杂度：$O(n)$**
+
+状态数n * 状态计算1次
+
+**空间复杂度：$O(n)$**
+
+n个状态
+
+#### 解法四：空间优化
+
+```c++
+class Solution {
+public:
+    int climbStairs(int n) {
+        int a = 0, b = 1, c;
+        for(int i = 1; i <= n; i++){
+            c = a + b;
+            a = b;
+            b = c;
+        }
+        return c;
+    }
+};
+```
+
+**时间复杂度：$O(n)$**
+
+状态数n * 状态计算1次
+
+**空间复杂度：$O(1)$**
+
+只需3个变量
+
+
+
+### 746 使用最小花费爬楼梯
+
+唯一需要注意的是初始化：
+
+可以从第0阶或第1阶楼梯出发，说明到达这两阶楼梯不需要花费
+
+因此dp[0]和dp[1]都为0，而不是cost[0]和cost[1]
+
+#### 正常版
+
+```C++
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        int n = cost.size();
+        vector<int> dp(n + 1);
+        dp[0] = 0;
+        dp[1] = 0;
+        // dp[i] 表示到达第i个台阶的最低花费
+        for(int i = 2; i <= n; i++){
+            dp[i] = min(dp[i - 1] + cost[i - 1], dp[i - 2] + cost[i - 2]);
+        }
+        return dp[n];
+    }
+};
+```
+
+**时间复杂度：$O(n)$**
+
+**空间复杂度：$O(n)$**
+
+
+
+#### 优化版
+
+```C++
+class Solution {
+public:
+    int minCostClimbingStairs(vector<int>& cost) {
+        int n = cost.size();
+        vector<int> dp(2);
+        dp[0] = 0;
+        dp[1] = 0;
+        int res;
+        // dp[i] 表示到达第i个台阶的最低花费
+        for(int i = 2; i <= n; i++){
+            res = min(dp[1] + cost[i - 1], dp[0] + cost[i - 2]);
+            dp[0] = dp[1];
+            dp[1] = res;
+        }
+        return res;
+    }
+};
+```
+
+**时间复杂度：$O(n)$**
+
+**空间复杂度：$O(1)$**
+
+
+
+### 62 不同路径
+
+#### 深搜（超时）
+
+从左上(1,1)开始往下遍历，函数调用图和二叉树非常相似
+
+重复大量无用节点
+
+这棵树的深度其实就是m+n-1（深度按从1开始计算）。
+
+那二叉树的节点个数就是$ 2^(m + n - 1) - 1$。可以理解深搜的算法就是遍历了整个满二叉树（其实没有遍历整个满二叉树，只是近似而已）
+
+所以上面深搜代码的时间复杂度为$O(2^{m + n - 1} - 1)$，可以看出，这是指数级别的时间复杂度，是非常大的。
+
+```C++
+class Solution {
+private:
+    int dfs(int i, int j, int m, int n){
+        if(i > m || j > n)  return 0;
+        if(i == m && j == n)    return 1;
+        return dfs(i + 1, j, m, n) + dfs(i, j + 1, m, n);
+    }
+public:
+    int uniquePaths(int m, int n) {
+        return dfs(1, 1, m, n);
+    }
+};
+```
+
+
+
+#### 动态规划
+
+##### 两维做法
+
+初始化`dp[i][0] = 1`和`dp[0][j] = 1`
+
+```C++
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        vector<vector<int>> dp(m, vector<int>(n, 0));
+        // 由于机器人每次只能往下或往右
+        // 所以dp[i][0]和dp[0][j]只有一条路
+        for(int i = 0; i < m; i++) dp[i][0] = 1;
+        for(int j = 0; j < n; j++) dp[0][j] = 1;
+        // 从dp[i][j]开始，路径来源可以是dp[i - 1][j]和dp[i][j - 1]
+        for(int i = 1; i < m; i++){
+            for(int j = 1; j < n; j++){
+                dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+};
+```
+
+时间复杂度：O(m × n)
+
+空间复杂度：O(m × n)
+
+
+
+##### 一维优化
+
+`dp[i][j] = dp[i - 1][j] + dp[i][j - 1];`分析这一递推公式，我们能够发现：在从上到下，从左到右的递归顺序下：
+
+`dp[i][j] = dp[i - 1][j] + dp[i][j - 1];`的效果和`dp[j] = dp[j] + dp[j - 1];`相同，因为dp[j]保存的就是`dp[i - 1][j]`的值，dp[j - 1]保存的就是`dp[i][j - 1]`的值，更新`dp[j]`之后`dp[j]`就变成了`dp[i][j]`
+
+```C++
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        vector<int> dp(n, 0);
+        // 由于机器人每次只能往下或往右
+        // 所以dp[i][0]和dp[0][j]只有一条路
+        for(int j = 0; j < n; j++) dp[j] = 1;
+        // 从dp[i][j]开始，路径来源可以是dp[i - 1][j]和dp[i][j - 1]
+        for(int i = 1; i < m; i++){
+          	// 这里从j = 0开始或者j = 1开始都可以，因为没有条件能够更改dp[i][0]的状态
+            for(int j = 1; j < n; j++){
+            		dp[j] = dp[j] + dp[j - 1];
+            }
+        }
+        return dp[n - 1];
+    }
+};
+```
+
+时间复杂度：O(m × n)
+
+空间复杂度：O(n)
+
+
+
+#### 数论做法
+
+一共$m - 1 + n -1 = n + m -2$步，选择其中m - 1步往下，得到组合数就是题解：$C_{n + m - 2}^{m - 1}$
+
+见https://programmercarl.com/0062.%E4%B8%8D%E5%90%8C%E8%B7%AF%E5%BE%84.html#%E6%80%9D%E8%B7%AF
+
+
+
+### 63 不同路径II
+
+#### 深搜（超时）
+
+```C++
+class Solution {
+private:
+    int dfs(vector<vector<int>>& obstacleGrid, int i, int j){
+        int m = obstacleGrid.size();
+        int n = obstacleGrid[0].size();
+      	// obstacleGrid[i][j] == 1直接返回0
+        if(i >= m || j >= n || obstacleGrid[i][j] == 1)  return 0;
+        if(i == m - 1 && j == n - 1 && obstacleGrid[i][j] == 0)    return 1;
+        return dfs(obstacleGrid, i + 1, j) + dfs(obstacleGrid, i, j + 1);
+    }
+public:
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        return dfs(obstacleGrid,0, 0);
+    }
+};
+```
+
+
+
+#### 动态规划
+
+初始化的时候注意
+
+`obstacleGrid[i][0] == 0`说明`dp[i + 1][0] == 0`及之后的`dp[i][0]`都为0
+
+##### 二维做法
+
+```c++
+class Solution {
+public:
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        int m = obstacleGrid.size();
+        int n = obstacleGrid[0].size();
+        vector<vector<int>> dp(m, vector<int>(n, 0));
+        for(int i = 0; i < m && obstacleGrid[i][0] == 0; i++) {
+            dp[i][0] = 1;
+        }
+        for(int j = 0; j < n && obstacleGrid[0][j] == 0; j++) {
+            dp[0][j] = 1;
+        }
+        for(int i = 1; i < m; i++){
+            for(int j = 1; j < n; j++){
+                if(obstacleGrid[i][j] == 0)
+                    dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                else
+                    dp[i][j] = 0;
+            }
+        }
+        return dp[m - 1][n - 1];
+    }
+};
+```
+
+
+
+##### 一维优化
+
+```C++
+class Solution {
+public:
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        int m = obstacleGrid.size();
+        int n = obstacleGrid[0].size();
+        vector<int> dp(n, 0);
+        // 这里不仅把dp[0][j]都初始化为1
+        // 而且把dp[i][0](i == 0)初始化为1
+        // 在之后的循环中，如果obstacleGrid[i][0] == 0那么dp[i][0]将一直保持为1
+        for(int j = 0; j < n && obstacleGrid[0][j] == 0; j++) dp[j] = 1;
+        for(int i = 1; i < m; i++){
+            // 这里必须从j == 0开始
+            // 因为如果obstacleGrid[i][0] == 1，需要将dp[i][0]更改状态为0
+            // 一旦更改状态为0后，之后将一直保持状态为0
+            for(int j = 0; j < n; j++){
+                if(obstacleGrid[i][j] == 1)
+                    dp[j] = 0;
+                else if(j != 0)
+                    dp[j] = dp[j] + dp[j - 1];
+            }
+        }
+        return dp[n - 1];
+    }
+};
+```
+
+
+
+### 343 整数划分
+
+`dp[i]` 表示给定一个正整数 `n` ，将其拆分为 `k` 个 **正整数** 的和（ `k >= 2` ）所能得到的最大乘积
+
+**递推公式**
+
+$dp[i] = max(dp[i], max((i - j) * j, dp[i - j] * j))$;
+
+- $(i - j) * j$表示只拆分两个正整数 (k == 2)
+- $dp[i - j] * j$表示拆分多个正整数 (k > 2)
+
+**遍历顺序**
+
+`dp[i]`需要使用`dp[i -j]`，所以遍历顺序为从左到右
+
+**初始化**
+
+题意给出n >= 2，j从1开始遍历
+
+因此需要初始化dp[2 - 1] 
+
+n == 1，无法分解为k >= 2个正整数的和，因此dp[1] = 0
+
+```C++
+class Solution {
+public:
+    int integerBreak(int n) {
+        vector<int> dp(n + 1, 0);
+        // n >= 2，根据递推公式，初始化dp[2]
+        dp[1] = 0;
+        for (int i = 2; i <= n; i++) {
+            for (int j = 1; j <= i / 2; j++) {
+                // (i - j) * j表示只拆分一次 (k == 2)
+                // dp[i - j] * j表示拆分多次
+                dp[i] = max(dp[i], max((i - j) * j, dp[i - j] * j));
+            }
+        }
+        return dp[n];
+    }
+};
+```
+
+- 时间复杂度：O(n^2)
+- 空间复杂度：O(n)
+
+
+
+### 96 不同的搜索树
+
+> 这道题正常人应该很难想到。。。
+
+dp[i]表示节点1到节点i的搜索树个数
+
+**递推公式**
+
+$dp[i] = \sum_{1}^{i}j为头节点的搜索树个数$
+
+j为头节点搜索树个数计算方法：dp[j - 1] * dp[i - j]
+
+```C++
+class Solution {
+public:
+    int numTrees(int n) {
+        // dp[i]表示节点1到节点i的搜索树个数
+        vector<int> dp(n + 1, 0);
+        dp[0] = 1;
+        for(int i = 1;i <= n; i++){
+            // 枚举头节点, j为头节点的值
+            // 根据搜索树特性，j - 1为左子树的个数， i - j为右子树的个数
+            for(int j = 1; j <= i; j++){
+                // 递推公式
+                dp[i] += dp[j - 1] * dp[i - j];
+            }
+        }
+        return dp[n];
+    }
+};
+```
+
+
+
+## 模拟题
+
+## 146 LRU缓存
+
+```C++
+class DListNode {
+public:
+    int key;
+    int value;
+    DListNode* prev;
+    DListNode* next;
+    DListNode():key(0), value(0),prev(nullptr),next(nullptr){};
+    DListNode(int key_, int value_) : key(key_), value(value_),prev(nullptr),next(nullptr) {}
+};
+
+class LRUCache {
+private:
+    DListNode* head;
+    DListNode* tail;
+    unordered_map<int, DListNode*> cache;
+    int size;
+    int capacity;
+
+    void addToHead(DListNode* node) {
+        node->prev = head;
+        node->next = head->next;
+        head->next->prev = node;
+        head->next = node;
+    }
+
+    void removeNode(DListNode* node) {
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+    }
+
+    void moveToHead(DListNode* node) {
+        removeNode(node);
+        addToHead(node);
+    }
+
+    DListNode* removeTail() {
+        DListNode* node = tail->prev;
+        removeNode(node);
+        return node;
+    }
+
+public:
+    LRUCache(int capacity) {
+        this->capacity = capacity;
+        head = new DListNode();
+        tail = new DListNode();
+        head->next = tail;
+        tail->prev = head;
+        size = 0;
+    }
+
+    int get(int key) {
+        if (!cache.count(key))
+            return -1;
+        DListNode* node = cache[key];
+        moveToHead(node);
+        return node->value;
+    }
+
+    void put(int key, int value) {
+        if (cache.count(key)) {
+            DListNode* node = cache[key];
+            moveToHead(node);
+            node->value = value;
+        } else {
+            DListNode* node = new DListNode(key, value);
+            addToHead(node);
+            cache[key] = node;
+            ++size;
+            if (size > capacity) {
+                DListNode* t = removeTail();
+                cache.erase(t->key);
+                delete t;
+                --size;
+            }
+        }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
+```
 
 
 
@@ -1730,110 +2421,7 @@ public:
 
 
 
-## 70 爬楼梯
 
-https://leetcode.cn/problems/climbing-stairs/description/
-
-### 解法一：递归
-
-```C++
-class Solution {
-public:
-    int climbStairs(int n) {
-        if(n <= 1)
-            return 1;
-        return climbStairs(n - 1) + climbStairs(n - 2);
-    }
-};
-```
-
-**时间复杂度：$O(2^n)$**
-
-可视为二叉树，树高为n，节点数为$2^n$，遍历搜索树需要$2^n$次
-
-**空间复杂度：$O(n)$**
-
-n个栈空间
-
-### 解法二：记忆化搜索
-
-```c++
-class Solution {
-private:
-    vector<int> m;
-    int dfs(int n){
-        if(n <= 1)
-            return 1;
-        int &res = m[n];
-        if(res)
-            return res;
-        return dfs(n - 1) + dfs(n - 2);
-    }
-public:
-    int climbStairs(int n) {
-        m.resize(n + 1);
-        return dfs(n);
-    }
-};
-```
-
-**时间复杂度：$O(n)$**
-
-每个状态只会计算一次，共n个状态
-
-**空间复杂度：$O(n)$**
-
-n个栈空间
-
-### 解法三：动态规划
-
-```c++
-class Solution {
-public:
-    vector<int> dp;
-    int climbStairs(int n) {
-        dp.resize(n + 1);
-        dp[0] = 1;
-        dp[1] = 1;
-        for(int i = 2; i <= n; i++)
-            dp[i] = dp[i - 1] + dp[i - 2];
-        return dp[n];
-    }
-};
-```
-
-**时间复杂度：$O(n)$**
-
-状态数n * 状态计算1次
-
-**空间复杂度：$O(n)$**
-
-n个状态
-
-### 解法四：空间优化
-
-```c++
-class Solution {
-public:
-    int climbStairs(int n) {
-        int a = 0, b = 1, c;
-        for(int i = 1; i <= n; i++){
-            c = a + b;
-            a = b;
-            b = c;
-        }
-        return c;
-    }
-};
-```
-
-**时间复杂度：$O(n)$**
-
-状态数n * 状态计算1次
-
-**空间复杂度：$O(1)$**
-
-只需3个变量
 
 ## 76 最小覆盖子串
 
@@ -2666,166 +3254,6 @@ public:
 
 
 
-## 141 环形链表
-
-根据题意：一个节点没有环
-
-```C++
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
- * };
- */
-class Solution {
-public:
-    bool hasCycle(ListNode *head) {
-        if(head == nullptr || head->next == nullptr)
-            return false;
-        ListNode* fast = head, *slow = head;
-        while(true){
-            if(fast == nullptr || fast->next == nullptr)
-                return false;
-            fast = fast->next->next;
-            slow = slow->next;
-          	if(fast == slow) 
-              	break;
-        }
-        return true;
-    }
-};
-```
-
-## 142 环形链表II
-
-```C++
-/**
- * Definition for singly-linked list.
- * struct ListNode {
- *     int val;
- *     ListNode *next;
- *     ListNode(int x) : val(x), next(NULL) {}
- * };
- */
-class Solution {
-public:
-    ListNode *detectCycle(ListNode *head) {
-        if(head == nullptr || head->next == nullptr)
-            return nullptr;
-        ListNode* fast = head, *slow = head;
-        while(true){
-            if(fast == nullptr || fast->next == nullptr)
-                return nullptr;
-            fast = fast->next->next;
-            slow = slow->next;
-            if(fast == slow)    break;
-        }
-        fast = head;
-        while(slow != fast){
-            fast = fast->next;
-            slow = slow->next;
-        }
-        return fast;
-    }
-};
-```
-
-## 146 LRU缓存
-
-```C++
-class DListNode {
-public:
-    int key;
-    int value;
-    DListNode* prev;
-    DListNode* next;
-    DListNode():key(0), value(0),prev(nullptr),next(nullptr){};
-    DListNode(int key_, int value_) : key(key_), value(value_),prev(nullptr),next(nullptr) {}
-};
-
-class LRUCache {
-private:
-    DListNode* head;
-    DListNode* tail;
-    unordered_map<int, DListNode*> cache;
-    int size;
-    int capacity;
-
-    void addToHead(DListNode* node) {
-        node->prev = head;
-        node->next = head->next;
-        head->next->prev = node;
-        head->next = node;
-    }
-
-    void removeNode(DListNode* node) {
-        node->prev->next = node->next;
-        node->next->prev = node->prev;
-    }
-
-    void moveToHead(DListNode* node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    DListNode* removeTail() {
-        DListNode* node = tail->prev;
-        removeNode(node);
-        return node;
-    }
-
-public:
-    LRUCache(int capacity) {
-        this->capacity = capacity;
-        head = new DListNode();
-        tail = new DListNode();
-        head->next = tail;
-        tail->prev = head;
-        size = 0;
-    }
-
-    int get(int key) {
-        if (!cache.count(key))
-            return -1;
-        DListNode* node = cache[key];
-        moveToHead(node);
-        return node->value;
-    }
-
-    void put(int key, int value) {
-        if (cache.count(key)) {
-            DListNode* node = cache[key];
-            moveToHead(node);
-            node->value = value;
-        } else {
-            DListNode* node = new DListNode(key, value);
-            addToHead(node);
-            cache[key] = node;
-            ++size;
-            if (size > capacity) {
-                DListNode* t = removeTail();
-                cache.erase(t->key);
-                delete t;
-                --size;
-            }
-        }
-    }
-};
-
-/**
- * Your LRUCache object will be instantiated and called as such:
- * LRUCache* obj = new LRUCache(capacity);
- * int param_1 = obj->get(key);
- * obj->put(key,value);
- */
-```
-
-
-
-
-
 ## 200 岛屿数量
 
 > 题解中这里修改了原数组，大家如果面试的时候，要问清楚面试官是否能修改原数组，不能的话就得加入标记数组，不要一给题就直接上手
@@ -3580,11 +4008,7 @@ public:
 
 空间复杂度: O(n)，其中 n 是序列的长度。空间复杂度主要取决于栈的大小，栈的大小至多为 2n−1。
 
-## 509 斐波那契数
 
-https://leetcode.cn/problems/fibonacci-number/description/
-
-和爬楼梯类似，不赘述
 
 ## 547 省份数量
 
