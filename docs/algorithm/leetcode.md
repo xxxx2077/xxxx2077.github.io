@@ -1563,6 +1563,38 @@ public:
 
 
 
+###### 一维优化
+
+```C++
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int n = text1.size();
+        int m = text2.size();
+        vector<int> dp(m + 1, 0)
+;       for(int i = 1; i <= n; i++){
+            int pre = dp[0];
+            for(int j = 1; j <= m; j++){
+                // 这里的dp[j]为dp[i - 1][j]
+                int cur = dp[j];
+                if(text1[i - 1] == text2[j - 1])
+                    dp[j] = pre + 1;
+                else
+                    // dp[j]为dp[i - 1][j]
+                    // dp[j - 1]为dp[i][j - 1]
+                    dp[j] = max(dp[j], dp[j - 1]);
+                // 这里的pre为dp[i - 1][j]
+                // j++后，pre为dp[i - 1][j - 1]
+                pre = cur;
+            }
+        }
+        return dp[m];
+    }
+};
+```
+
+
+
 ## 模拟题
 
 ## 146 LRU缓存
