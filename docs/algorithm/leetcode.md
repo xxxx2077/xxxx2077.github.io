@@ -1523,6 +1523,46 @@ public:
 
 
 
+#### 1143 最长公共子序列
+
+##### 动态规划
+
+###### 二维做法
+
+**与上一题一样：**
+
+`text1[i - 1] == text2[j - 1]`仍然是`dp[i][j] = dp[i - 1][j - 1] + 1;`
+
+**和上一题不同之处在于：**
+
+由于上一题是公共子数组，子数组特性在于连续，因此`text1[i - 1] != text2[j - 1]`说明`dp[i][j] == 0`
+
+而本题是公共子序列，可以不连续，`text1[i - 1] != text2[j - 1]`时`dp[i][j] != 0`，需要我们额外计算
+
+`dp[i][j] `的长度是`dp[i - 1][j]`和`dp[i][j - 1]`中的最大值
+
+```C++
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int n = text1.size();
+        int m = text2.size();
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0))
+;       for(int i = 1; i <= n; i++){
+            for(int j = 1; j <= m; j++){
+                if(text1[i - 1] == text2[j - 1])
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                else
+                    dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);
+            }
+        }
+        return dp[n][m];
+    }
+};
+```
+
+
+
 ## 模拟题
 
 ## 146 LRU缓存
