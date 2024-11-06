@@ -1007,11 +1007,13 @@ public:
 
 ## 动态规划
 
-### 509 斐波那契数
+### 基础题
+
+#### 509 斐波那契数
 
 https://leetcode.cn/problems/fibonacci-number/description/
 
-#### 递归
+##### 递归
 
 ```C++
 class Solution {
@@ -1029,7 +1031,7 @@ public:
 - 时间复杂度：$O(2^n)$
 - 空间复杂度：$O(n)$，算上了编程语言中实现递归的系统栈所占空间
 
-#### 动态规划
+##### 动态规划
 
 ```C++
 class Solution {
@@ -1051,7 +1053,7 @@ public:
 - 时间复杂度：$O(n)$
 - 空间复杂度：$O(1)$
 
-#### 动态规划优化
+##### 动态规划优化
 
 ```C++
 class Solution {
@@ -1075,7 +1077,7 @@ public:
 - 时间复杂度：$O(n)$
 - 空间复杂度：$O(1)$
 
-### 70 爬楼梯
+#### 70 爬楼梯
 
 https://leetcode.cn/problems/climbing-stairs/description/
 
@@ -1084,7 +1086,7 @@ https://leetcode.cn/problems/climbing-stairs/description/
 - 爬楼梯n == 1, dp[1] = 1; n == 2, dp[2] = 2
 - 斐波那契数n == 0, dp[0] = 0; n == 1, dp[1] = 1; n == 2, dp[2] = 1;
 
-#### 解法一：递归
+##### 解法一：递归
 
 ```C++
 class Solution {
@@ -1105,7 +1107,7 @@ public:
 
 n个栈空间
 
-#### 解法二：记忆化搜索
+##### 解法二：记忆化搜索
 
 ```c++
 class Solution {
@@ -1135,7 +1137,7 @@ public:
 
 n个栈空间
 
-#### 解法三：动态规划
+##### 解法三：动态规划
 
 ```c++
 class Solution {
@@ -1160,7 +1162,7 @@ public:
 
 n个状态
 
-#### 解法四：空间优化
+##### 解法四：空间优化
 
 ```c++
 class Solution {
@@ -1187,7 +1189,7 @@ public:
 
 
 
-### 746 使用最小花费爬楼梯
+#### 746 使用最小花费爬楼梯
 
 唯一需要注意的是初始化：
 
@@ -1195,7 +1197,7 @@ public:
 
 因此dp[0]和dp[1]都为0，而不是cost[0]和cost[1]
 
-#### 正常版
+##### 正常版
 
 ```C++
 class Solution {
@@ -1220,7 +1222,7 @@ public:
 
 
 
-#### 优化版
+##### 优化版
 
 ```C++
 class Solution {
@@ -1248,9 +1250,9 @@ public:
 
 
 
-### 62 不同路径
+#### 62 不同路径
 
-#### 深搜（超时）
+##### 深搜（超时）
 
 从左上(1,1)开始往下遍历，函数调用图和二叉树非常相似
 
@@ -1279,9 +1281,9 @@ public:
 
 
 
-#### 动态规划
+##### 动态规划
 
-##### 两维做法
+###### 两维做法
 
 初始化`dp[i][0] = 1`和`dp[0][j] = 1`
 
@@ -1311,7 +1313,7 @@ public:
 
 
 
-##### 一维优化
+###### 一维优化
 
 `dp[i][j] = dp[i - 1][j] + dp[i][j - 1];`分析这一递推公式，我们能够发现：在从上到下，从左到右的递归顺序下：
 
@@ -1343,7 +1345,7 @@ public:
 
 
 
-#### 数论做法
+###### 数论做法
 
 一共$m - 1 + n -1 = n + m -2$步，选择其中m - 1步往下，得到组合数就是题解：$C_{n + m - 2}^{m - 1}$
 
@@ -1351,9 +1353,9 @@ public:
 
 
 
-### 63 不同路径II
+#### 63 不同路径II
 
-#### 深搜（超时）
+##### 深搜（超时）
 
 ```C++
 class Solution {
@@ -1375,13 +1377,13 @@ public:
 
 
 
-#### 动态规划
+##### 动态规划
 
 初始化的时候注意
 
 `obstacleGrid[i][0] == 0`说明`dp[i + 1][0] == 0`及之后的`dp[i][0]`都为0
 
-##### 二维做法
+###### 二维做法
 
 ```c++
 class Solution {
@@ -1411,7 +1413,7 @@ public:
 
 
 
-##### 一维优化
+###### 一维优化
 
 ```C++
 class Solution {
@@ -1442,7 +1444,7 @@ public:
 
 
 
-### 343 整数划分
+#### 343 整数划分
 
 `dp[i]` 表示给定一个正整数 `n` ，将其拆分为 `k` 个 **正整数** 的和（ `k >= 2` ）所能得到的最大乘积
 
@@ -1489,7 +1491,7 @@ public:
 
 
 
-### 96 不同的搜索树
+#### 96 不同的搜索树
 
 > 这道题正常人应该很难想到。。。
 
@@ -1522,6 +1524,342 @@ public:
 ```
 
 
+
+### 子序列系列
+
+#### 300 最长递增子序列
+
+##### 动态规划
+
+思路：
+
+- 题目求最长递增子序列，假设我们已经找了k个元素形成了子序列a，我们发现，如果想要继续增加新元素，需要关注子序列a最后一个元素`nums[i]`，**比较`nums[j]`与`nums[i]`的关系（j > i）**。这一步骤本质上关注的是子序列的末尾元素，对于子序列其他元素不关心。因此我们围绕末尾元素建模。
+
+- 我们将`dp[i]`设置为第i个元素结尾的最长递增子序列长度，确认dp[i]含义后很容易得到递推公式
+
+- 递推公式：
+
+  遍历`nums[i]`之前的元素`nums[j]`，比较两者关系，如果`nums[i] > nums[j]`，`dp[i]  = dp[j] + 1`
+
+  ```
+  // 伪代码
+  if(nums[i] > nums[j]) {
+  	dp[i] = max(dp[j] + 1)，j从0遍历到i - 1
+  }
+  res = max(dp[i])，i从0遍历到i - 1
+  ```
+
+- 遍历顺序：从左到右或从右到左都可以，只需要将索引[0, i - 1]的元素遍历一遍，默认从左到右
+- 初始化：每个元素结尾的最长递增子序列长度至少为1，即该元素本身，所以$dp[i] = 1, i \in [0, n - 1]$
+- 结果：取$res = max(dp[i]), i \in [0, n - 1]$
+
+```C++
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        int n = nums.size();
+        // dp[i]表示以nums[i]结尾的最长严格递增子序列的长度
+        // 默认为1，仅包含nums[i]
+        vector<int> dp(n, 1);
+        // 取dp[i]最大值为结果
+        int res = 1;
+        for(int i = 0; i < n; i++){
+            // 遍历j从0到i - 1
+            for(int j = 0; j < i; j++){
+                if(nums[i] > nums[j])
+                    dp[i] = max(dp[i], dp[j] + 1);
+            }
+            res = max(res, dp[i]);
+        }
+        return res;
+    }
+};
+```
+
+时间复杂度：$O(n^2 )$，其中 n 为数组 nums 的长度。动态规划的状态数为 n，计算状态 dp[i] 时，需要 O(n) 的时间遍历 dp[0…i−1] 的所有状态，所以总时间复杂度为 $O(n^2)$。
+
+空间复杂度：$O(n)$，需要额外使用长度为 n 的 dp 数组
+
+
+
+##### 贪心 + 二分查找
+
+这个优化方法很容易想到，我们想要得到尽可能长的递增序列，就需要选择和当前末尾元素nums[i]尽可能大小相近的元素，从而减小序列上升速度
+
+**选择和当前末尾元素nums[i]尽可能大小相近的元素**
+
+- 这就是贪心的思路，我们寻找比nums[i]大的元素集合，再从中找到最小的元素即可
+
+d[i] 表示长度为i的递增序列末尾元素的最小值
+
+```C++
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        int n = nums.size();
+        if(n == 0)
+            return 0;
+        vector<int> d(n + 1, 0);
+        int len = 1;
+        d[len] = nums[0];
+        for(int i = 1; i < n; i++){
+            if(nums[i] > d[len]){
+                d[++len] = nums[i];
+            }
+            else{
+                // 通过二分查找 找到第一个大于等于nums[i]的元素
+                // 注意这里是二分查找的区间为[d.begin() + 1, d.begin() + len + 1]
+                auto it = lower_bound(d.begin() + 1, d.begin() + len + 1, nums[i]);
+                // pos为第一个大于等于nums[i]的元素的索引
+                int pos = distance(d.begin(),it);
+                // 更新d[pos]为nums[i]
+                d[pos] = nums[i];
+            }
+        }
+        return len;
+    }
+};
+```
+
+
+
+#### 674 最长连续子序列
+
+##### 动态规划
+
+dp[i]表示以第i个元素结尾的最长连续子序列长度
+
+与“300 最长递增子序列”不同在于：本题不需要遍历[0, i -1]找比nums[i]小的元素，只需要与nums[i - 1]比较即可
+
+```C++
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n, 1);
+        int res = 1;
+        for(int i = 1; i < n; i++){
+            if(nums[i] > nums[i - 1])
+                dp[i] = dp[i - 1] + 1;
+            res = max(res, dp[i]);
+        }
+        return res;
+    }
+};
+```
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(n)
+
+
+
+##### 贪心
+
+使用一个计数器，nums[i]比nums[i - 1]大就加一
+
+否则，减一，重新计数
+
+最后统计计数器最大值
+
+```C++
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        int n = nums.size();
+        int count = 1;
+        int res = 1;
+        for (int i = 1; i < n; i++) {
+            if (nums[i] > nums[i - 1])
+                count++;
+            else 
+                count = 1;
+            res = max(res, count);
+        }
+        return res;
+    }
+};
+```
+
+- 时间复杂度：O(n)
+- 空间复杂度：O(1)
+
+
+
+#### 718 最长重复子数组
+
+##### 动态规划
+
+###### 二维做法
+
+有两种`dp[i][j]` 的方法
+
+
+
+**方法一：**
+
+**`dp[i][j]` 的含义**
+
+`dp[i][j]` 表示数组a第i个元素和数组第j个元素的公共子数组长度
+
+**递推公式：**
+
+如果`A[i] == B[j]`，`dp[i][j] = dp[i - 1][j - 1] + 1`
+
+否则`dp[i][j] = 0`
+
+**遍历顺序：**
+
+从上到下，从左到右
+
+**初始化：**
+
+需要分类讨论
+
+如果`A[0] == B[0]`，`dp[0][0] = 1`
+
+如果`A[0] != B[0]`，`dp[0][0] = 0`
+
+如果`A[i] == B[0]`，`dp[i][0] = 1`
+
+如果`B[j] == A[0]`，`dp[0][j] = 1`
+
+
+
+```C++
+class Solution {
+public:
+    int findLength(vector<int>& nums1, vector<int>& nums2) {
+        int n = nums1.size();
+        int m = nums2.size();
+        vector<vector<int>> dp(n, vector<int>(m, 0));
+				
+      	// 初始化
+        for(int i = 0; i < n; i++){
+            if(nums1[i] == nums2[0])
+                dp[i][0] = 1;
+        }
+        for(int j = 0; j < m; j++){
+            if(nums1[0] == nums2[j])
+                dp[0][j] = 1;
+        }
+
+      	// 设定res求dp[i][j]的最大值
+        int res = 0;
+      	// 本质上dp[i][j] = dp[i - 1][j - 1] + 1适用于i >= 1 && j >= 1
+      	// 因为dp[i][0]和dp[0][j]已经被更新
+      	// 但是res需要求dp[i][j]的最大值，包括dp[i][0]和dp[0][j]的最大值
+      	// 所以这里从i == 0 和j == 0开始
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j++){
+              	// 这里需要i > 0 && j > 0 
+                if(i > 0 && j > 0 && nums1[i] == nums2[j])
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                res = max(res, dp[i][j]);
+            }          
+        }
+
+        return res;
+    }
+};
+```
+
+**方法二：**
+
+**`dp[i][j]` 的含义**
+
+`dp[i][j]` 表示数组a第i - 1个元素和数组第j - 1个元素的公共子数组长度
+
+**递推公式：**
+
+如果`A[i] == B[j]`，`dp[i][j] = dp[i - 1][j - 1] + 1`
+
+否则`dp[i][j] = 0`
+
+**遍历顺序：**
+
+从上到下，从左到右
+
+**初始化：**
+
+`dp[i][j]` 表示数组a第i - 1个元素和数组第j - 1个元素的公共子数组长度
+
+所以i和j从1开始
+
+所以`i == 0|| j ==0`没有含义，`dp[i][0]和dp[0][j]`都为0
+
+
+
+```C++
+class Solution {
+public:
+    int findLength(vector<int>& nums1, vector<int>& nums2) {
+        int n = nums1.size();
+        int m = nums2.size();
+        // 因为dp[i][j]表示数组a第i - 1个元素和数组第j - 1个元素的公共子数组长度
+      	// 数组a有n个元素，数组b有m个元素
+      	// 所以i最大值为n而不是n - 1，j最大值为m而不是m - 1
+      	// 这里初始化要注意dp(n + 1, vector<int>(m + 1, 0))
+      	// 而不是dp(n, vector<int>(m, 0));
+        vector<vector<int>> dp(n + 1, vector<int>(m + 1, 0));
+
+        int res = 0;
+      	// 从i == 1和j == 1开始遍历, i <= n, j <= m
+        for(int i = 1; i <= n; i++){
+            for(int j = 1; j <= m; j++){
+                if(nums1[i - 1] == nums2[j - 1])
+                    dp[i][j] = dp[i - 1][j - 1] + 1;
+                res = max(res, dp[i][j]);
+            }          
+        }
+
+        return res;
+    }
+};
+```
+
+
+
+**总结**
+
+可以发现，方法二初始化比方法一要简单很多
+
+- 时间复杂度：O(n × m)，n 为A长度，m为B长度
+- 空间复杂度：O(n × m)
+
+###### 一维优化
+
+```C++
+class Solution {
+public:
+    int findLength(vector<int>& nums1, vector<int>& nums2) {
+        int n = nums1.size();
+        int m = nums2.size();
+        vector<int> dp(m + 1, 0);
+
+        int res = 0;
+        for(int i = 1; i <= n; i++){
+            // 因为dp[i][j] = dp[i - 1][j - 1] + 1
+            // 如果直接变成dp[j] = dp[j - 1] + 1，这里的dp[j - 1]是dp[i][j]
+            // 因此需要改变j的遍历顺序
+            for(int j = m; j >= 1; j--){
+                if(nums1[i - 1] == nums2[j - 1])
+                    dp[j] = dp[j - 1] + 1;
+              	// 不相等的时候需要将dp[j]置为0，表示公共长度为0
+              	// 二维做法中其实也需要置为0，但是初始化的时候已经置为了0
+              	// 在一维做法中，由于滚动数组每个位置都会在每个i循环中使用，因此需要更新dp[j] = 0
+                else
+                    dp[j] = 0;
+                res = max(res, dp[j]);
+            }          
+        }
+
+        return res;
+    }
+};
+```
+
+- 时间复杂度：$O(n × m)$，n 为A长度，m为B长度
+- 空间复杂度：$O(m)$
 
 ## 模拟题
 
