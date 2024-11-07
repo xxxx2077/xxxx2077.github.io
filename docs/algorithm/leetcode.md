@@ -20,6 +20,8 @@ DFS&回溯：leetcode934、685、1102、531、533、113、332、337
 贪心：leetcode55、435、621、452
 字典树：leetcode820、208、648
 
+
+
 ## 数组
 
 ### 704 二分查找
@@ -1935,103 +1937,18 @@ public:
 - 时间复杂度：$O(n × m)$，n 为A长度，m为B长度
 - 空间复杂度：$O(m)$
 
-## 模拟题
-
-## 146 LRU缓存
-
-```C++
-class DListNode {
-public:
-    int key;
-    int value;
-    DListNode* prev;
-    DListNode* next;
-    DListNode():key(0), value(0),prev(nullptr),next(nullptr){};
-    DListNode(int key_, int value_) : key(key_), value(value_),prev(nullptr),next(nullptr) {}
-};
-
-class LRUCache {
-private:
-    DListNode* head;
-    DListNode* tail;
-    unordered_map<int, DListNode*> cache;
-    int size;
-    int capacity;
-
-    void addToHead(DListNode* node) {
-        node->prev = head;
-        node->next = head->next;
-        head->next->prev = node;
-        head->next = node;
-    }
-
-    void removeNode(DListNode* node) {
-        node->prev->next = node->next;
-        node->next->prev = node->prev;
-    }
-
-    void moveToHead(DListNode* node) {
-        removeNode(node);
-        addToHead(node);
-    }
-
-    DListNode* removeTail() {
-        DListNode* node = tail->prev;
-        removeNode(node);
-        return node;
-    }
-
-public:
-    LRUCache(int capacity) {
-        this->capacity = capacity;
-        head = new DListNode();
-        tail = new DListNode();
-        head->next = tail;
-        tail->prev = head;
-        size = 0;
-    }
-
-    int get(int key) {
-        if (!cache.count(key))
-            return -1;
-        DListNode* node = cache[key];
-        moveToHead(node);
-        return node->value;
-    }
-
-    void put(int key, int value) {
-        if (cache.count(key)) {
-            DListNode* node = cache[key];
-            moveToHead(node);
-            node->value = value;
-        } else {
-            DListNode* node = new DListNode(key, value);
-            addToHead(node);
-            cache[key] = node;
-            ++size;
-            if (size > capacity) {
-                DListNode* t = removeTail();
-                cache.erase(t->key);
-                delete t;
-                --size;
-            }
-        }
-    }
-};
-
-/**
- * Your LRUCache object will be instantiated and called as such:
- * LRUCache* obj = new LRUCache(capacity);
- * int param_1 = obj->get(key);
- * obj->put(key,value);
- */
-```
 
 
+## 哈希表
 
-## 1 两数之和
+### 1 两数之和
 
-### 暴力版
+#### 暴力版
+
+遍历每个元素，枚举数组该元素后的每个元素，判断`nums[i]` + `nums[j]` 是否等于`target`
+
+- 如果是，返回`{i, j}`
+- 如果遍历整个数组都没有找到`{i,j}`，返回空数组
 
 ```C++
 class Solution {
@@ -2050,88 +1967,423 @@ public:
 };
 ```
 
+时间复杂度：$O(n^2)$
+
+空间复杂度：$O(1)$
 
 
-### 优化版
+
+#### 优化版
+
+在暴力版中，我们发现：定位元素`nums[i]`后，寻找元素`nums[j]`花费了$O(n)$的时间复杂度
+
+因此可以使用哈希表进行优化，哈希表查找元素效率为$O(1)$
+
+使用哈希表优化思路：
+
+- 我们判断某个元素的值是否存在，因此该元素的值作为哈希表的key值
+- 题目要求返回元素的下标，因此该元素的下标作为哈希表的value值
+
+**最简单的想法**
+
+遍历一遍数组，将每个元素加入到哈希表中
+
+然后再遍历一遍数组，定位元素`nums[i]`时，通过哈希表查询是否存在`target - nums[i]`，如果存在返回下标
+
+需要注意的是，题目要求不能使用同一元素多次，也就是说`nums[i] != hashMap[target - nums[i]]`
 
 ```C++
 class Solution {
 public:
     vector<int> twoSum(vector<int>& nums, int target) {
-        // 使用哈希表，因为想要将查询target - nums[i]的时间复杂度缩为O(1)
         unordered_map<int,int> hashMap;
-        vector<int> ans;
-        // 遍历一遍数组，使用hashMap记录nums[i]之前的元素值和下标
-        for(int i = 0; i < nums.size(); i++){
-            // 如果hashMap存在target - nums[i],直接返回
-            auto it = hashMap.find(target - nums[i]);
-            if(it != hashMap.end()){
-                ans.push_back(it->second);
-                ans.push_back(i);
-                break;
-            }
-            // 如果不存在，更新hashMap
-            hashMap[nums[i]] = i;
+        int n = nums.size();
+        for(int i = 0; i < n; i++){
+            hashMap.insert({nums[i],i});
         }
-        return ans;
+        for(int i = 0; i < n; i++){
+            int num = target - nums[i];
+            if(hashMap.count(num) && hashMap[num] != i){
+                int j = hashMap[num];
+                return {i, j};
+            }
+        }
+        return {};
     }
 };
 ```
 
-## 3 无重复字符的最长子串
+以上做法使用了两次`for(int i = 0; i < n; i++)`，我们能够在一次循环中完成整个算法
 
 ```C++
 class Solution {
 public:
-    int lengthOfLongestSubstring(string s) {
-        int n = s.size();
-        int start = 0;
-        unordered_set<char> hashMap;
-        int ans = 0;
-        for(int end = 0; end < n; end++){
-            while(hashMap.count(s[end])){
-                // 这里注意是把s[start]移除
-                hashMap.erase(s[start]);
-                start++;
+    vector<int> twoSum(vector<int>& nums, int target) {
+        unordered_map<int,int> hashMap;
+        int n = nums.size();
+        for(int i = 0; i < n; i++){           
+            int num = target - nums[i];
+            if(hashMap.count(num)){
+                int j = hashMap[num];
+                return {i, j};
             }
-            hashMap.insert(s[end]);
-            ans = max(ans,end - start + 1);
+            // 为了不使用当前元素，判断完之后再插入
+            hashMap.insert({nums[i],i});
         }
-        return ans;
+        return {};
     }
 };
 ```
 
 
 
-## 11盛最多水的容器
+### 49 字母异位词分组
 
-以两边为容器壁，往中间遍历
+本题本质上是对哈希函数的考察
 
-更新容器壁小的那个指针
+如何设计哈希函数，让字母异位词指向同一个key值，通过value值将这些字母异位词收集起来
+
+由以上分析，我们判断使用`unordered_map`
+
+#### 做法一
+
+第一种做法：对字符串进行排序，同一组异位词排序后的结果一定相同
+
+```C++
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        // 每个排序后的key对应的乱序的str
+        unordered_map<string, vector<string>> hashMap;
+        for (string& str : strs) {
+            string key = str;
+            sort(key.begin(), key.end());
+            hashMap[key].push_back(str);
+        }
+        vector<vector<string>> ans;
+        for (auto it = hashMap.begin(); it != hashMap.end(); it++) {
+            ans.push_back(it->second);
+        }
+        return ans;
+    }
+};
+```
+
+#### 做法二
+
+第二种做法：同一组异位词每个字符出现的次数一定相同
+
+例如"abca"
+
+key的设置为a2b1c1
+
+```C++
+class Solution {
+public:
+    vector<vector<string>> groupAnagrams(vector<string>& strs) {
+        unordered_map<string, vector<string>> map;
+        for (string str : strs) {
+          	// 如果写成int counts[26];过不了
+          	// 可能是因为编译优化
+            int counts[26] = {0};
+            for (char c : str) {
+                counts[c - 'a']++;
+            }
+            string key = "";
+            for (int i = 0; i < 26; ++i) {
+                if (counts[i]) {
+                    key.push_back(i + 'a');
+                  	// 这一步不能漏
+                    key.push_back(counts[i]);
+                }
+            }
+            map[key].push_back(str);
+        }
+        vector<vector<string>> res;
+        for (auto it = map.begin(); it != map.end(); it++) {
+            res.push_back(it->second);
+        }
+        return res;
+    }
+};
+```
+
+## 
+
+
+
+
+
+## 双指针
+
+### 283 移动零
+
+#### 暴力解法
+
+题目要求：
+
+1. 将所有的零移动到数组的末尾，且不改变非零元素的顺序
+2. 在原地对数组进行操作
+
+思路：
+
+- 题目要求在原地对数组进行操作，那我们就假设[0, k - 1]都是非零元素，[k, n - 1]都是零
+- 遍历数组，通过`nums[i] == 0`找到第一个零元素
+- 移动到数组的末尾：`for (int j = i + 1; j < n; j++)`我们可以往后找到非零元素，将其与零元素交换，那么就可以保证数组前面都是零元素
+
+```C++
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        int n = nums.size();
+        for (int i = 0; i < n; i++) {
+            if (nums[i] == 0) {
+                for (int j = i + 1; j < n; j++) {
+                    if (nums[j] != 0) {
+                        swap(nums[i], nums[j]);
+                      	// 保证非零元素的顺序，需要break
+                        break;
+                    }
+                }
+            }
+        }
+    }
+};
+```
+
+#### 双指针优化
+
+我们发现暴力解法中，i指向第一个零元素的位置，j指向第一个非零元素的位置
+
+j的遍历重复经过了[i, j]之间的多个零元素
+
+因此可以使用双指针优化
+
+```C++
+class Solution {
+public:
+    void moveZeroes(vector<int>& nums) {
+        int n = nums.size();
+        // l 指向第一个零元素
+        int l = 0;
+        // r指向第一个非零元素
+        for(int r = 0; r < n; r++){
+            if(nums[r] != 0){
+                swap(nums[l],nums[r]);
+                l++;
+            }
+        }
+    }
+};
+```
+
+
+
+### 128 最长连续序列
+
+#### 暴力做法
+
+根据题意首先要对数组进行去重，去重可采用set/unordered_set/map/unordered_map等容器
+
+最简单的思路：
+
+- 遍历每个元素x，不断在数组中找出值为x, x + 1, x +2, ... , x + y的元素，计算长度 y + 1
+- 既能满足去重又能快速找出值的数据结构且不要求值有序，使用unordered_set即可
+
+```C++
+class Solution {
+public:
+    int longestConsecutive(vector<int>& nums) {
+        // 去重
+        unordered_set<int> nums_set;
+        for(auto num : nums){
+            nums_set.insert(num);
+        }
+        int n = nums_set.size();
+        int maxLen = 0;
+        for (auto num : nums_set) {
+            int curNum = num;
+            int curLen = 0;
+            while(nums_set.count(curNum)){
+                curNum++;
+                curLen++;
+            }
+            maxLen = max(maxLen,curLen);
+        }
+        return maxLen;
+    }
+};
+```
+
+时间复杂度：$O(n^2)$
+
+- 对于每个元素都遍历了curLen次
+
+空间复杂度:$O(n)$
+
+
+
+#### 优化版
+
+暴力解法的缺点在于会重复寻找数字连续的最长序列：
+
+比如说
+
+- 当前元素是x，按暴力解法的做法，我们会遍历x, x + 1, x +2, ... , x + y的元素，计算长度 y + 1
+- 如果当前元素是x + 1，按暴力解法的做法，我们会遍历x + 1, x +2, ... , x + y的元素，计算长度 y
+- ...
+- 如果当前元素是x + y - 1，按暴力解法的做法，我们会遍历x + y - 1, x + y的元素，计算长度 2
+- 如果当前元素是x + y，按暴力解法的做法，我们会遍历x + y的元素，计算长度 1
+
+如何避免这种情况呢
+
+我们发现：如果当前元素是x + 1，那么x + 1遍历的元素, x已经遍历过了；推广到x + k, x + k遍历的元素, x + k - 1也遍历过了
+
+那么我们只需要寻找当前元素的前置元素是否存在，就可以判断该序列是否已经遍历过了
+
+```C++
+class Solution {
+public:
+    int longestConsecutive(vector<int>& nums) {
+        // 去重
+        unordered_set<int> nums_set;
+        for(auto num : nums){
+            nums_set.insert(num);
+        }
+        int n = nums_set.size();
+        int maxLen = 0;
+        for (auto num : nums_set) {
+            int curNum = num;
+            int curLen = 0;
+            // 与暴力解法相比，加了这一行代码，其他都不变
+            if(nums_set.count(num - 1))
+                continue;
+            while(nums_set.count(curNum)){
+                curNum++;
+                curLen++;
+            }
+            maxLen = max(maxLen,curLen);
+        }
+        return maxLen;
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+- 看起来是时间复杂度是$O(n^2)$，实际上，假设数字连续的最长序列的长度为maxLen，数组去重后长度为n，我们遍历n - maxLen个不在数字连续的最长序列的元素，由于我们的优化操作，我们只从最终数字连续的最长序列的第一个元素开始遍历，并且只遍历这个序列一次，因此再遍历maxLen个元素，最终遍历了n个元素，即$O(n)$
+
+空间复杂度:$O(n)$
+
+
+
+### 11盛最多水的容器
+
+容器容纳水的计算方法：
+
+- 假设i和j是容器的两侧
+- $容器容纳水量 = (j - i) * min(height[i], height[j])$
+
+那么我们只需要从两侧往中间遍历，依次比较两侧height大小，取容器水量
+
+因为目标是最小的高度，因此更新指针时，更新的是小的那一个
+
+> 思路与977类似，都属于数组异侧双指针
+>
+> 这种题的特点是：需要从两侧开始比较大小
 
 ```C++
 class Solution {
 public:
     int maxArea(vector<int>& height) {
         int l = 0, r = height.size() - 1;
-        int ans = 0;
-        while(l < r){
-          	// 根据题意，这里容器宽度为 r - l 不是r - l + 1
-            ans = max(ans, (r - l) * min(height[l],height[r]));
-            if(height[l] <= height[r])
-                l++;
-            else
-                r--;
+        int res = 0;
+        while (l < r) {
+            res = max(res, (r - l) * min(height[l],height[r]));
+            height[l] < height[r] ? l++ : r--;          
         }
-        return ans;
+        return res;
     }
 };
 ```
 
 
 
-## 15 三数之和
+### 15 三数之和
+
+#### 暴力解法（超时）
+
+判断是否存在三元组 `[nums[i], nums[j], nums[k]]` 满足 `i != j`、`i != k` 且 `j != k` ，同时还满足 `nums[i] + nums[j] + nums[k] == 0`
+
+- 最简单的做法，三层循环就能找出三元组 `[nums[i], nums[j], nums[k]]`
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        int n = nums.size();
+        vector<vector<int>> ans;
+        for(int i = 0; i < n; i++){
+            for(int j = i + 1; j < n; j++){
+                for(int k = j + 1; k < n; k++){
+                    if((nums[i] + nums[j] + nums[k]) == 0)
+                        ans.push_back(vector<int> {nums[i],nums[j],nums[k]});
+                }
+            }
+        }
+        return ans;
+    }
+};
+```
+
+但题目还要求：答案中不可以包含重复的三元组，因此我们需要去重
+
+- 最直接的想法就是使用set/unordered_set，但是该类容器key值和value值相同，而key值通常不支持vector做元素
+- 我们还可以从遍历上去重，可以想到，对数组进行排序，排序后，下一次遍历的元素与上一次相同时则跳过（因为上一个元素遍历过的元素，下一个元素还会重复一次）
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> threeSum(vector<int>& nums) {
+        int n = nums.size();
+        vector<vector<int>> ans;
+        sort(nums.begin(), nums.end());
+        for(int i = 0; i < n; i++){
+            if(i > 0 && nums[i] == nums[i - 1])
+                continue;
+            for(int j = i + 1; j < n; j++){
+                if(j > i + 1 && nums[j] == nums[j - 1])
+                    continue;
+                for(int k = j + 1; k < n; k++){
+                    if(k > j + 1 && nums[k] == nums[k - 1])
+                        continue;
+                    if((nums[i] + nums[j] + nums[k]) == 0)
+                        ans.push_back(vector<int> {nums[i],nums[j],nums[k]});
+                }
+            }
+        }
+        return ans;
+    }
+};
+```
+
+时间复杂度：$O(n^3)$
+
+空间复杂度：$O(n^2)$
+
+
+
+#### 优化版
+
+三重循环还是时间花销太大了，我们想办法如何进一步优化
+
+我们发现：假设`nums[i] + nums[j] + nums[k] == 0` 和`nums[i] + nums[j] + nums[k + 1] == 0`并且`k > j + 1`
+
+那么第三层循环，k会重复遍历区间[j, k - 1]
+
+为了避免这种情况，我们可以使用双指针
+
+
 
 ```C++
 class Solution {
@@ -2163,6 +2415,38 @@ public:
     }
 };
 ```
+
+
+
+
+
+## 3 无重复字符的最长子串
+
+```C++
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+        int n = s.size();
+        int start = 0;
+        unordered_set<char> hashMap;
+        int ans = 0;
+        for(int end = 0; end < n; end++){
+            while(hashMap.count(s[end])){
+                // 这里注意是把s[start]移除
+                hashMap.erase(s[start]);
+                start++;
+            }
+            hashMap.insert(s[end]);
+            ans = max(ans,end - start + 1);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+
 
 
 
@@ -2721,62 +3005,6 @@ public:
     vector<vector<int>> permute(vector<int>& nums) {
         dfs(nums, 0);
         return ans;
-    }
-};
-```
-
-## 49 字母异位词分组
-
-第一种做法：对字符串进行排序，同一组异位词排序后的结果一定相同
-
-```C++
-class Solution {
-public:
-    vector<vector<string>> groupAnagrams(vector<string>& strs) {
-        // 每个排序后的key对应的乱序的str
-        unordered_map<string, vector<string>> hashMap;
-        for (string& str : strs) {
-            string key = str;
-            sort(key.begin(), key.end());
-            hashMap[key].push_back(str);
-        }
-        vector<vector<string>> ans;
-        for (auto it = hashMap.begin(); it != hashMap.end(); it++) {
-            ans.push_back(it->second);
-        }
-        return ans;
-    }
-};
-```
-
-第二种做法：同一组异位词每个字符出现的次数一定相同
-
-```C++
-class Solution {
-public:
-    vector<vector<string>> groupAnagrams(vector<string>& strs) {
-        unordered_map<string, vector<string>> map;
-        for (string str : strs) {
-          	// 如果写成int counts[26];过不了
-          	// 可能是因为编译优化
-            int counts[26] = {0};
-            for (char c : str) {
-                counts[c - 'a']++;
-            }
-            string key = "";
-            for (int i = 0; i < 26; ++i) {
-                if (counts[i]) {
-                    key.push_back(i + 'a');
-                    key.push_back(counts[i]);
-                }
-            }
-            map[key].push_back(str);
-        }
-        vector<vector<string>> res;
-        for (auto it = map.begin(); it != map.end(); it++) {
-            res.push_back(it->second);
-        }
-        return res;
     }
 };
 ```
@@ -3630,40 +3858,6 @@ public:
 };
 ```
 
-## 128 最长连续序列
-
-关键：
-
-- 对数组去重
-- 如果x+y 的前驱x + y - 1也在，可以跳过当前的计算，因为x + y - 1已经计算过了
-
-```C++
-class Solution {
-public:
-    int longestConsecutive(vector<int>& nums) {
-        // 对数组去重
-        unordered_set<int> numSet;
-        for(int num : nums)
-            numSet.insert(num);
-        int ans = 0;
-        // 遍历每个元素
-        for(int num : numSet){
-            // 如果num的前驱num - 1存在说明可以跳过
-            if(!numSet.count(num - 1)){
-                int curNum = num;
-                int len = 1;
-                while(numSet.count(curNum + 1)){
-                    ++curNum;
-                    ++len;
-                }
-                ans = max(ans, len);
-            }
-        }
-        return ans;
-    }
-};
-```
-
 
 
 ## 200 岛屿数量
@@ -4248,28 +4442,6 @@ public:
 
 
 
-## 283 移动零
-
-```C++
-class Solution {
-public:
-    void moveZeroes(vector<int>& nums) {
-        int n = nums.size();
-        // 右指针遍历数组的每个数组
-        // 左指针指向非零序列的尾部（尾部元素的下一个）
-        // [l,r - 1]一定为0
-        int l = 0, r = 0;
-        while(r < n){
-            if(nums[r]){
-                swap(nums[l],nums[r]);
-                l++;
-            }
-            r++;
-        }
-    }
-};
-```
-
 
 
 ## 415 字符串相加（大数加法）
@@ -4806,6 +4978,98 @@ public:
         return nums;
     }
 };
+```
+
+## 模拟题
+
+### 146 LRU缓存
+
+```C++
+class DListNode {
+public:
+    int key;
+    int value;
+    DListNode* prev;
+    DListNode* next;
+    DListNode():key(0), value(0),prev(nullptr),next(nullptr){};
+    DListNode(int key_, int value_) : key(key_), value(value_),prev(nullptr),next(nullptr) {}
+};
+
+class LRUCache {
+private:
+    DListNode* head;
+    DListNode* tail;
+    unordered_map<int, DListNode*> cache;
+    int size;
+    int capacity;
+
+    void addToHead(DListNode* node) {
+        node->prev = head;
+        node->next = head->next;
+        head->next->prev = node;
+        head->next = node;
+    }
+
+    void removeNode(DListNode* node) {
+        node->prev->next = node->next;
+        node->next->prev = node->prev;
+    }
+
+    void moveToHead(DListNode* node) {
+        removeNode(node);
+        addToHead(node);
+    }
+
+    DListNode* removeTail() {
+        DListNode* node = tail->prev;
+        removeNode(node);
+        return node;
+    }
+
+public:
+    LRUCache(int capacity) {
+        this->capacity = capacity;
+        head = new DListNode();
+        tail = new DListNode();
+        head->next = tail;
+        tail->prev = head;
+        size = 0;
+    }
+
+    int get(int key) {
+        if (!cache.count(key))
+            return -1;
+        DListNode* node = cache[key];
+        moveToHead(node);
+        return node->value;
+    }
+
+    void put(int key, int value) {
+        if (cache.count(key)) {
+            DListNode* node = cache[key];
+            moveToHead(node);
+            node->value = value;
+        } else {
+            DListNode* node = new DListNode(key, value);
+            addToHead(node);
+            cache[key] = node;
+            ++size;
+            if (size > capacity) {
+                DListNode* t = removeTail();
+                cache.erase(t->key);
+                delete t;
+                --size;
+            }
+        }
+    }
+};
+
+/**
+ * Your LRUCache object will be instantiated and called as such:
+ * LRUCache* obj = new LRUCache(capacity);
+ * int param_1 = obj->get(key);
+ * obj->put(key,value);
+ */
 ```
 
 
