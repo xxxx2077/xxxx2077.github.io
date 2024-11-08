@@ -2418,9 +2418,208 @@ public:
 
 
 
+### 42 接雨水
+
+**接雨水的本质：**对于下标 i，下雨后水能到达的最大高度等于下标 i 两边的最大高度的最小值，下标 i 处能接的雨水量等于下标 i 处的水能到达的最大高度减去 height[i]
+
+#### 暴力解法
+
+通过循环找出下标 i 两边的最大高度leftMax和rightMax，再求最小值，这个最小值就是下标 i 处的水能到达的最大高度
+
+> leftMax和rightMax计算过程包含height[i]
+
+下标 i 处能接的雨水量等于下标 i 处的水能到达的最大高度减去 height[i]
+
+```C++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int n = height.size();
+        int res = 0;
+        for(int i = 0; i < n; i++){
+            int leftMax = 0, rightMax = 0;
+          	// 记得leftMax包含height[i]
+            for(int j = 0; j <= i; j++){
+                leftMax = max(leftMax, height[j]);
+            }
+          	// 记得rightMax包含height[i]
+            for(int j = i; j < n; j++){
+                rightMax = max(rightMax,height[j]);
+            }
+            if(leftMax < rightMax){
+                res += leftMax - height[i];
+            }
+            else
+                res += rightMax - height[i];
+        }
+        return res;
+    }
+};
+```
+
+时间复杂度：$O(2n^2)$
+
+空间复杂度：$O(n)$
 
 
-## 3 无重复字符的最长子串
+
+#### 动态规划
+
+在暴力解法的基础上分析，我们发现，每次从i左右两侧遍历寻找最高度需要$O(n)$，这里面重复了很多次
+
+我们干脆一次遍历使用数组记录`leftMax[i]`和`rightMax[i]`
+
+- leftMax[i]表示i左侧高度最大值
+- rightMax[i]表示i右侧高度最大值
+
+观察代码你会发现，其实也就是将第二层for循环提到外面
+
+```C++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int n = height.size();
+        int res = 0;
+        // leftMax[i]表示i左侧高度最大值
+        // rightMax[i]表示i右侧高度最大值
+        int leftMax[n], rightMax[n];
+        // 初始化
+        leftMax[0] = height[0];
+        rightMax[n - 1] = height[n - 1];
+        // 更新leftMax和rightMax
+        for (int i = 1; i < n; i++) {
+          	// 记得leftMax包含height[i]
+            leftMax[i] = max(leftMax[i - 1],height[i]);
+        }
+        for (int i = n - 2; i >= 0; i--) {
+          	// 记得rightMax包含height[i]
+            rightMax[i] = max(rightMax[i + 1],height[i]);
+        }
+        for (int i = 0; i < n; i++) {
+            if (leftMax[i] < rightMax[i]) {
+                res += leftMax[i] - height[i];
+            } else
+                res += rightMax[i] - height[i];
+        }
+        return res;
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(n)$
+
+
+
+#### 单调栈法
+
+> 单调栈特点：
+>
+> - 栈内记录下标
+> - 单调递减栈
+>   - 栈底到栈顶，元素单调递减
+>   - 当遇到height[i] > height[stk.top()]，需要弹出栈顶元素，此时大小关系有：
+>     1. height[i] > height[stk.top()]
+>     2. 弹出栈顶元素`int idx = stk.top();`
+>     3. height[stk.top()] >= height[idx]，这里的stk.top()与第一步的stk.top()不同
+
+从左到右遍历数组，遍历到下标 i 时，如果栈内至少有两个元素，记栈顶元素为 top，top 的下面一个元素是 left，则一定有 height[left]≥height[top]。如果 height[i]>height[top]，则得到一个可以接雨水的区域
+
+- 该区域的宽度是 i−left−1
+  - 当height[i]>height[top]，我们找到了两侧最大值，分别为rightMax(height[i])和leftMax(height[left])，两侧之间的区域就是接雨水的区域
+  - 由于接雨水区域不包括两侧最大值，因此width = i - left - 1
+- 高度是 min(height[left],height[i])−height[top]
+
+根据宽度和高度即可计算得到该区域能接的雨水量。
+
+```C++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int n = height.size();
+        stack<int> stk;
+        int ans = 0;
+        for(int i = 0; i < n; i++){
+            // 这里注意用的是while 不是 if
+            while(!stk.empty() && height[i] > height[stk.top()]){
+                int idx = stk.top();
+                stk.pop();
+                // 记得判断边界条件
+                if(stk.empty())
+                    break;
+                int left = stk.top();
+                int minHeight = min(height[left], height[i]);
+                ans += (minHeight - height[idx]) * (i - left - 1);
+            }
+            stk.push(i);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+#### 双指针法
+
+暴力解法本质上就是比较两侧元素大小，因此可以采用同侧双指针法优化
+
+本题中，我们比较的是两侧高度最大值的最小值，因此分为两步
+
+1. 记录两侧高度的最大值 -> 在指针移动过程中进行
+2. 对两侧高度最大值进行取最小值 -> min(leftMax, rightMax)
+
+问题在于如何求解下标 i 处能接的雨水量，即使用双指针后，下标i如何表示
+
+- 双指针问题特性：left和right交替移动，最终遍历完整个数组，因此下标i实际上是移动的left和right
+- 我们得到最小值后，立即计算这一侧的雨水量
+  - 如果leftMax < rightMax，那么计算res += leftMax - height[left];
+  - 如果leftMax > rightMax，那么计算res += rightMax - height[right];
+  - 这是因为，得到最小值后，我们会移动相应的指针。以leftMax < rightMax为例，假设当前left == 2，我们会更新left，之后我们不会再计算这个指针指向的height[2]，因此计算雨水量使用leftMax - height[left]
+- 为什么leftMax < rightMax，移动left
+  - 这是因为雨水量由最小值决定，如果移动rightMax，除非新的rightMax小于leftMax，否则对结果没有任何影响
+  - 而rightMax是递增的，每次都只会取更大值，即rightMax = max(rightMax, height[right])，因此rightMax不可能小于leftMax
+  - 因此我们移动最小值那一侧的指针
+
+```C++
+class Solution {
+public:
+    int trap(vector<int>& height) {
+        int n = height.size();
+        int left = 0, right = n - 1;
+        int leftMax = height[left], rightMax = height[right];
+        int res = 0;
+        while(left < right){
+            leftMax = max(leftMax, height[left]);
+            rightMax = max(rightMax, height[right]);
+            if(leftMax < rightMax){
+                res += leftMax - height[left];
+                left++;
+            }
+            else{
+                res += rightMax - height[right];
+                right--;
+            }
+        }
+        return res;
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(1)$
+
+
+
+## 滑动窗口
+
+### 3 无重复字符的最长子串
+
+为什么使用滑动窗口 -> 因为题目问的是子串，即连续字符序列
+
+判断字符是否重复 -> 用哈希表维护滑动窗口的字符
 
 ```C++
 class Solution {
@@ -2444,9 +2643,93 @@ public:
 };
 ```
 
+时间复杂度：$O(n)$
+
+空间复杂度：$O(n)$
 
 
 
+### 438 找到字符串中的所有字母异位词
+
+**写法一**
+
+for循环里面，i指向窗口前一个位置，这样就能保证i + pLen一定有效，不需要额外判断
+
+```C++
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> ans;
+        int sLen = s.size(), pLen = p.size();
+        if(sLen < pLen)
+            return vector<int>{};
+        vector<int> sHashMap(26);
+        vector<int> pHashMap(26);       
+        for(int i = 0; i < pLen; i++){
+            sHashMap[s[i] - 'a']++;
+            pHashMap[p[i] - 'a']++;
+        }
+        if(sHashMap == pHashMap)
+            ans.push_back(0);
+        // i为滑动窗口的入口前一个位置，i + pLen 为滑动窗口的出口的下一个位置
+        // 滑动窗口的出口需要有意义，因此需要满足i + pLen < sLen -> i < sLen - pLen
+        idx - i + 1 = pLen -> idx = pLen + i - 1
+        for(int i = 0; i < sLen - pLen; i++){
+            // 调整左边界
+            --sHashMap[s[i] - 'a'];
+            // 调整右边界
+            ++sHashMap[s[i + pLen] - 'a'];
+            // 调整之后，获得新的滑动窗口
+            // 对滑动窗口进行判断
+            if(sHashMap == pHashMap)
+                ans.push_back(i + 1);
+        }
+        return ans;
+    }
+};
+```
+
+时间复杂度：`O(m+(n−m)×Σ)`，其中 n 为字符串 s 的长度，m 为字符串 p 的长度，Σ 为所有可能的字符数。我们需要 O(m) 来统计字符串 p 中每种字母的数量；需要 O(m) 来初始化滑动窗口；需要判断 n−m+1 个滑动窗口中每种字母的数量是否与字符串 p 中每种字母的数量相同，每次判断需要 O(Σ) 。因为 s 和 p 仅包含小写字母，所以 Σ=26。
+
+空间复杂度：O(Σ)。用于存储字符串 p 和滑动窗口中每种字母的数量
+
+
+
+**另一种写法**
+
+for循环里面，i指向窗口的入口，i + pLen指向窗口的下一个位置， i + pLen 不一定有效，需要额外判断
+
+```C++
+class Solution {
+public:
+    vector<int> findAnagrams(string s, string p) {
+        vector<int> ans;
+        int sLen = s.size(), pLen = p.size();
+        if (sLen < pLen)
+            return vector<int>{};
+        vector<int> sHashMap(26);
+        vector<int> pHashMap(26);
+        for (int i = 0; i < pLen; i++) {
+            sHashMap[s[i] - 'a']++;
+            pHashMap[p[i] - 'a']++;
+        }
+        // i为滑动窗口的入口，i + pLen 为滑动窗口的出口
+        // 如果从入口开始遍历, i最大值计算：sLen - 1 - i + 1 == pLen -> i <= sLen - pLen
+        for (int i = 0; i <= sLen - pLen; i++) {
+            if (sHashMap == pHashMap)
+                ans.push_back(i);
+            // 这里需要判断 i + pLen 是否超出数组索引大小，才能取s[i + pLen]
+            if (i + pLen < sLen) {
+                // 调整左边界
+                --sHashMap[s[i] - 'a'];
+                // 调整右边界
+                ++sHashMap[s[i + pLen] - 'a'];
+            }
+        }
+        return ans;
+    }
+};
+```
 
 
 
@@ -2866,68 +3149,6 @@ private:
 public:
     vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
         dfs(candidates, res, target, 0);
-        return ans;
-    }
-};
-```
-
-## 42 接雨水
-
-接雨水的本质：找到第i个位置左侧高度最大值leftMax和右侧高度最大值rightMax，取min(leftMax, rightMax) - height[i]为i当前可接的雨水
-
-由以上分析可知，只与leftMax和rightMax中的最小值有关，与其中的最大值无关
-
-### 单调栈法
-
-```C++
-class Solution {
-public:
-    int trap(vector<int>& height) {
-        int n = height.size();
-        stack<int> stk;
-        int ans = 0;
-        for(int i = 0; i < n; i++){
-            // 这里注意用的是while 不是 if
-            while(!stk.empty() && height[i] > height[stk.top()]){
-                int idx = stk.top();
-                stk.pop();
-                // 记得判断边界条件
-                if(stk.empty())
-                    break;
-                int left = stk.top();
-                int minHeight = min(height[left], height[i]);
-                ans += (minHeight - height[idx]) * (i - left - 1);
-            }
-            stk.push(i);
-        }
-        return ans;
-    }
-};
-```
-
-
-
-### 双指针法
-
-```C++
-class Solution {
-public:
-    int trap(vector<int>& height) {
-        int leftMax = 0, rightMax = 0;
-        int left = 0, right = height.size() - 1;
-        int ans = 0;
-        while(left < right){
-            leftMax = max(leftMax,height[left]);
-            rightMax = max(rightMax,height[right]);
-            if(leftMax < rightMax){
-                ans += leftMax - height[left];
-                ++left;
-            }
-            else{
-                ans += rightMax - height[right];
-                --right;
-            }
-        }
         return ans;
     }
 };
@@ -4479,40 +4700,6 @@ public:
 
 
 
-## 438 找到字符串中的所有字母异位词
-
-```C++
-class Solution {
-public:
-    vector<int> findAnagrams(string s, string p) {
-        vector<int> ans;
-        int sLen = s.size(), pLen = p.size();
-        // 注意边界条件
-        if(sLen < pLen)
-            return ans;
-        // 哈希表，统计字符数
-        vector<int> sCount(26);
-        vector<int> pCount(26);
-        
-        for (int i = 0; i < pLen; i++) {
-            ++sCount[s[i] - 'a'];
-            ++pCount[p[i] - 'a'];
-        }
-        // 这里使用了vector的比较
-        if (sCount == pCount)
-            ans.push_back(0);
-        for (int i = 0; i < sLen - pLen; i++) {
-            // 移动窗口
-            --sCount[s[i] - 'a'];
-            ++sCount[s[i + pLen] - 'a'];
-            if(sCount == pCount)
-                ans.push_back(i + 1);
-        }
-        return ans;
-    }
-};
-```
-
 ## 470 用rand7() 实现rand10()
 
 ```C++
@@ -5185,6 +5372,8 @@ int main(){
 可解决图的连通分量问题
 
 ### 单调栈
+
+
 
 ## STL
 
