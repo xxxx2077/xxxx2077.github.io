@@ -1,6 +1,15 @@
-# leetcode
+# Leetcode
 
-## 题单
+## 刷前指引
+
+本笔记记录本人刷题思路
+
+### 刷题网站推荐
+
+以下网站提供了比较系统的刷题题单以及刷题思路讲解
+
+- 代码随想录（配合B站视频食用）[https://programmercarl.com/](https://programmercarl.com/)
+- labuladong的算法笔记 [https://labuladong.online/algo/home/](https://labuladong.online/algo/home/)
 
 ### 华为推荐题型List
 
@@ -2615,6 +2624,16 @@ public:
 
 ## 滑动窗口
 
+滑动窗口算法可以用于解决一些字符串和数组问题，**滑动窗口记录最大值、最小值、子串长度**
+
+例如：
+
+- 字符串匹配问题，例如 Leetcode 第 28 题和第 76 题；
+- 最长子串或子数组问题，例如 Leetcode 第 3 题、第 209 题和第 424 题；
+- 最小覆盖子串问题，例如 Leetcode 第 76 题；
+- 字符串排列问题，例如 Leetcode 第 567 题；
+- 求解字符串或数组中的一些性质，例如 Leetcode 第 438 题、第 567 题和第 1004 题等。
+
 ### 3 无重复字符的最长子串
 
 为什么使用滑动窗口 -> 因为题目问的是子串，即连续字符序列
@@ -2730,6 +2749,157 @@ public:
     }
 };
 ```
+
+
+
+### 239 滑动窗口的最大值
+
+#### 单调队列
+
+> 有时间的话阅读一下这篇文章
+>
+> [https://labuladong.online/algo/data-structure/monotonic-queue/#%E4%B8%80%E3%80%81%E6%90%AD%E5%BB%BA%E8%A7%A3%E9%A2%98%E6%A1%86%E6%9E%B6](https://labuladong.online/algo/data-structure/monotonic-queue/#%E4%B8%80%E3%80%81%E6%90%AD%E5%BB%BA%E8%A7%A3%E9%A2%98%E6%A1%86%E6%9E%B6)
+>
+> 
+>
+> 以下文字来源于以上文章，这解释了为什么使用单调队列：
+>
+> **给你一个数组 `window`，已知其最值为 `A`，如果给 `window` 中添加一个数 `B`，那么比较一下 `A` 和 `B` 就可以立即算出新的最值；但如果要从 `window` 数组中减少一个数，就不能直接得到最值了，因为如果减少的这个数恰好是 `A`，就需要遍历 `window` 中的所有元素重新寻找新的最值**。
+>
+> 这个场景很常见，但不用单调队列似乎也可以，比如优先级队列也是一种特殊的队列，专门用来动态寻找最值的，我创建一个大（小）顶堆，不就可以很快拿到最大（小）值了吗？
+>
+> 如果单纯地维护最值的话，优先级队列很专业，队头元素就是最值。但优先级队列无法满足标准队列结构「先进先出」的**时间顺序**，因为优先级队列底层利用二叉堆对元素进行动态排序，元素的出队顺序是元素的大小顺序，和入队的先后顺序完全没有关系。
+>
+> 所以，现在需要一种新的队列结构，既能够维护队列元素「先进先出」的时间顺序，又能够正确维护队列中所有元素的最值，这就是「单调队列」结构。
+>
+> 「单调队列」这个数据结构主要用来辅助解决滑动窗口相关的问题，前文 [滑动窗口核心框架](https://labuladong.online/algo/essential-technique/sliding-window-framework/) 把滑动窗口算法作为双指针技巧的一部分进行了讲解，但有些稍微复杂的滑动窗口问题不能只靠两个指针来解决，需要上更先进的数据结构。
+>
+> 比方说，你注意看前文 [滑动窗口核心框架](https://labuladong.online/algo/essential-technique/sliding-window-framework/) 讲的几道题目，每当窗口扩大（`right++`）和窗口缩小（`left++`）时，你单凭移出和移入窗口的元素即可决定是否更新答案。
+>
+> 但本文开头说的那个判断一个窗口中最值的例子，你无法单凭移出窗口的那个元素更新窗口的最值，除非重新遍历所有元素，但这样的话时间复杂度就上来了，这是我们不希望看到的。
+
+
+
+```C++
+class Solution {
+public:
+    vector<int> maxSlidingWindow(vector<int>& nums, int k) {
+        deque<int> window;
+        int n = nums.size();
+        vector<int> res;
+        for(int i = 0; i < n; i++){
+            // 移动滑动窗口头部 
+            // 当前滑动窗口头部idx 如果比理想的头部i - k + 1要小，则调整滑动窗口头部
+            while(!window.empty() && window.front() < i - k + 1){
+                window.pop_front();
+            }
+            // 移动滑动窗口尾部
+            while(!window.empty() && nums[i] > nums[window.back()]){
+                window.pop_back();
+            }
+            window.push_back(i);
+            // 更新滑动窗口最大值
+            // 当i >= k -1 说明滑动窗口已填满，可以开始移动和获取最大值
+            if(i >= k - 1)
+                res.push_back(nums[window.front()]);
+        }
+        return res;
+    }
+};
+```
+
+时间复杂度：O(n)，其中 n 是数组 nums 的长度。每一个下标恰好被放入队列一次，并且最多被弹出队列一次，因此时间复杂度为 O(n)。
+
+空间复杂度：O(k)。与方法一不同的是，在方法二中我们使用的数据结构是双向的，因此「不断从队首弹出元素」保证了队列中最多不会有超过 k+1 个元素，因此队列使用的空间为 O(k)
+
+
+
+## 子串
+
+### 560 和为k的子数组
+
+#### 暴力解法
+
+```C++
+class Solution {
+public:
+    int subarraySum(vector<int>& nums, int k) {
+        int n = nums.size();
+        int res = 0;
+        for(int i = 0; i < n; i++){
+            int sum = 0;
+            for(int j = i; j < n; j++){
+                sum += nums[j];
+                if(sum == k)
+                    res++;
+            }
+        }
+        return res;
+    }
+};
+```
+
+时间复杂度：$O(n^2)$
+
+空间复杂度：$O(1)$
+
+
+
+#### 优化版
+
+> 题外话：这道题看到连续序列可能会想用滑动窗口
+>
+> 但是滑动窗口通常用于记录窗口内的最大最小值 或 子串长度
+>
+> 在本题中，k值可以为正数，也可以为负数，这意味着我们不一定求的是最值，使用滑动窗口无法求解
+
+在暴力解法中，我们发现每次枚举nums[i]后，都会循环遍历nums[j]计算sum，这种计算子数组的和可以用前缀和优化
+
+前缀和：我们想知道[j, i]的和，就可以使用前缀和`pre[i] - pre[j - 1]`计算
+
+在本题中，我们想知道区间和为k数组的个数，我们当然可以遍历每个元素i，获得pre[i]，但问题是我们不知道什么时候区间和等于k，即我们无法知道下标j
+
+我们假设已经找到了j，那么有`pre[i] - pre[j - 1] == k`，我们发现`pre[j - 1]`可以用`pre[i] - k`代替，也就是我们不需要知道j具体是多少，只需要找出前缀和为`pre[i] - k`的数组即可
+
+**前缀和为`pre[i] - k` 与 区间和为k 可是完全不同的概念**
+
+- 或许你会说前缀和为`pre[i] - k` ，需要从0到i依次遍历寻找；区间和为k，也需要从i到0依次遍历寻找，都是$O(n)$时间复杂度
+- 但是注意`pre[i]`与`pre[i] - k` 的关系，当我们得到了`pre[i]`，说明我们已经得到了`pre[i] - k`，这两者都是通过前缀和计算得到的，而前缀和计算是遍历过程中得到的，**因此我们可以维护一个哈希表，计算一次前缀和就将结果放入哈希表**，那么当我们得到了`pre[i]`，我们可以通过$O(1)$时间复杂度获得`pre[i] - k`的个数
+
+最后，从左往右边更新边计算的时候已经保证了hashMap[pre[i]−k] 里记录的 pre[j] 的下标范围是 0≤j≤i 。同时，由于pre[i] 的计算只与前一项的答案有关，因此我们可以不用建立 pre 数组，直接用 pre 变量来记录 pre[i−1] 的答案即可。
+
+```C++
+class Solution {
+public:
+    int subarraySum(vector<int>& nums, int k) {
+        // key记录值sum[i] - k，value记录个数
+        unordered_map<int,int> hashMap;
+        int n = nums.size();
+        int pre = 0;
+        int count = 0;
+        // 这一步不能省
+        // 因为pre == k的时候一定有解
+        // 从前缀和为0的时候开始
+        hashMap[0] = 1;
+        // sum[i] - sum[j - 1] = k
+        // 即sum[j - 1] = sum[i] - k
+        // 此处的pre就是sum[i]
+        for(int i = 0; i < n; i++){
+            pre += nums[i];
+            auto it = hashMap.find(pre - k);
+            if(it != hashMap.end())
+                count += it->second;
+            // 记录前缀和为pre的个数
+            hashMap[pre]++;
+        }
+        return count;
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(n)$
 
 
 
@@ -4906,37 +5076,6 @@ public:
 时间复杂度：$O(n^2logn)$，其中 n 是城市的数量。需要遍历矩阵 isConnected 中的所有元素，时间复杂度是 $O(n^2)$，如果遇到相连关系，则需要进行 2 次查找和最多 1 次合并，一共需要进行 $2n^2$次查找和最多$n^2$次合并，因此总时间复杂度是$ O(2n^2logn^2 )=O(n^2logn)$。这里的并查集使用了路径压缩，但是没有使用按秩合并，最坏情况下的时间复杂度是 $O(n^2logn)$，平均情况下的时间复杂度依然是 $O(n2α(n))$，其中 α 为阿克曼函数的反函数，$α(n) $可以认为是一个很小的常数。
 
 空间复杂度：$O(n)$，其中 n 是城市的数量。需要使用数组 parent 记录每个城市所属的连通分量的祖先。
-
-## 560 和为k的子数组
-
-```C++
-class Solution {
-public:
-    int subarraySum(vector<int>& nums, int k) {
-        // key记录值sum[i] - k，value记录个数
-        unordered_map<int,int> hashMap;
-        int n = nums.size();
-        int pre = 0;
-        int count = 0;
-        // 这一步不能省
-        // 因为pre == k的时候一定有解
-        // 从前缀和为0的时候开始
-        hashMap[0] = 1;
-        // sum[i] - sum[j - 1] = k
-        // 即sum[j - 1] = sum[i] - k
-        // 此处的pre就是sum[i]
-        for(int i = 0; i < n; i++){
-            pre += nums[i];
-            auto it = hashMap.find(pre - k);
-            if(it != hashMap.end())
-                count += it->second;
-            // 记录前缀和为pre的个数
-            hashMap[pre]++;
-        }
-        return count;
-    }
-};
-```
 
 
 
