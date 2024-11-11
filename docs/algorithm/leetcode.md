@@ -2903,6 +2903,202 @@ public:
 
 
 
+## 贪心
+
+### 121 买卖股票的最佳时机
+
+想要得到最大利润很简单：
+
+只需要使用最高的价钱 - 最小的成本
+
+我们最直接的想法就是：
+
+遍历一遍数组，得到最高价钱和最小成本，两者相减即可
+
+```C++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int profit = 0;
+        int minCost = INT_MAX, maxCost = 0;
+        for(int i = 0; i < prices.size(); i++){
+            minCost = min(minCost, prices[i]);
+            maxCost = max(maxCost, prices[i]);
+        }
+        profit = maxCost - minCost;
+        return profit <= 0 ? 0 : profit;
+    }
+};
+```
+
+但是本题有个隐藏条件：股票出售需要在买入之后，以上做法没有满足这个条件。
+
+那么我们如何做到呢？其实也不难，我们不更新最高价钱，而是直接更新最大利润
+
+在遍历过程中，最小成本cost取得的索引一定比prices[i]当前的索引小，因此满足题意
+
+```C++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int cost = INT_MAX, profit = 0;
+        for(int i = 0;i < prices.size(); i++){
+            cost = min(cost, prices[i]);
+            profit = max(profit, prices[i] - cost);
+        }
+        return profit;
+    }
+};
+```
+
+
+
+### 55 跳跃游戏
+
+维护最大可达位置nextStep
+
+如果当前位置i <= nextStep，说明当前位置i可达，可跳到当前位置i上，更新最大可达位置
+
+如果最大可达位置比n - 1大，说明能够到达n - 1
+
+```C++
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int n = nums.size();
+        int nextStep = 0;
+        for(int i = 0; i < n; i++){
+            if(i <= nextStep){
+                nextStep = max(nextStep, i + nums[i]);
+                if(nextStep >= n - 1)
+                    return true;
+            }
+        }
+        return false;
+    }
+};
+```
+
+
+
+### 45 跳跃游戏II
+
+#### 普通版
+
+```C++
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        int n = nums.size();
+        int start = 0, end = start + 1;
+        int ans = 0;
+        while(end < n){
+            int nextStep;
+            for(int i = start; i < end; i++){
+                nextStep = max(nextStep, i + nums[i]);
+            }
+            ans++;
+            start = end;
+            end = nextStep + 1;
+        }
+        return ans;
+    }
+};
+```
+
+#### 优化版
+
+在跳跃游戏中，我们的思路是：
+
+- 我们不确定给定nums[i] 需要走多少步才能到达最后一个元素
+- 为此，我们进行了问题转换，我们不需要知道走多少步，只需要更新最大到达范围maxPos，如果maxPos大于等于n - 1，说明能够到达n - 1
+
+在跳跃游戏II中，我们仍然能仿照这个思路：
+
+- 如果当前maxPos没有覆盖n - 1，那我们跳跃一次
+- 如果maxPos大于等于n - 1，说明能够到达n - 1，**不需要再跳跃**
+
+**不同之处**在于：跳跃游戏II默认我们能够到达最后一个元素，求跳跃次数
+
+如何能让跳跃次数最大，我们只需要走到maxPos的时候再跳跃即可 -> 我们维护两个maxPos，一个表示当前能够到达的最大位置，另一个表示下一次能够到达的最大位置
+
+**这里需要特别注意的一点：**跳跃游戏II默认我们能够到达最后一个元素，因此我们不需要遍历到 n -1个元素，因为在那之前，我们一定能让maxPos覆盖n - 1
+
+如果包含了n - 1反而有可能让结果多加一次(end 刚好等于n - 1)
+
+```C++
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        int n = nums.size();
+        int end = 0;
+        int maxNextStep = 0;
+        int step = 0;
+        // 注意：i < n - 1 而不是i < n
+        for (int i = 0; i < n - 1; i++) {
+          	// 这里不需要if判断了，因为题目说一定能到达n - 1
+            maxNextStep = max(maxNextStep, i + nums[i]);
+            if (i == end) {
+                ++step;
+                end = maxNextStep;
+            }
+        		// 与跳跃游戏不同，这里不需要maxNextStep >= n - 1判断，因为我们知道一定能到达n - 1
+        		// 如果加了这个判断，表明我们已经知道覆盖范围大于n - 1了
+        		// 但是这时候i还没走到更新后的end，我们需要让i走到end之后让step加一
+        }
+        return step;
+    }
+};
+```
+
+
+
+### 763 划分字母区间
+
+对于划分区间问题，我们通常会想到贪心
+
+做法通常是比较区间的末端，更新区间
+
+
+
+在本题中，分析题目：
+
+- 同一字母最多出现在一个片段中 -> 假设字母出现的最后位置$end_c$为`last[s[i] - 'a']`，区间末端$end$必须要大于等于$end_c$，否则会出现两个字母出现在不同片段
+- 把这个字符串划分为尽可能多的片段 -> 只要满足i到达区间末端$end$，说明当前区间[start, end]所有字母出现的最后位置$end_c$为`last[s[i] - 'a']`，都满足$end_c$小于等于区间末端$end$，那么我们就可以立即划分区间，从而得到尽可能多的区间
+
+```C++
+class Solution {
+public:
+    vector<int> partitionLabels(string s) {
+        int n = s.size();
+        int last[26];
+        vector<int> res;
+        // 统计每个字符最后出现的下标
+        for(int i = 0; i < n; i++){
+            last[s[i] - 'a'] = i;
+        }
+        // start为区间开始点，end为区间结束点
+        // end一定为某区间内所有last[j]的最大值
+        int start = 0, end = 0;
+        for(int i = 0; i < n; i++){
+            end = max(end, last[s[i] - 'a']);
+            // i == end 说明区间终点end已确定 且已遍历到区间终点end
+            if(i == end){
+                res.push_back(end - start + 1);
+                start = end + 1;
+            }
+        }
+        return res;
+    }
+};
+```
+
+复杂度分析
+
+时间复杂度：O(n)，其中 n 是字符串的长度。需要遍历字符串两次，第一次遍历时记录每个字母最后一次出现的下标位置，第二次遍历时进行字符串的划分。
+
+空间复杂度：O(∣Σ∣)，其中 Σ 是字符串中的字符集。这道题中，字符串只包含小写字母，因此 ∣Σ∣=26。
+
 ## 21 合并两个升序链表
 
 ### 解法一：递归
@@ -3326,53 +3522,6 @@ public:
 
 
 
-## 45 跳跃游戏II
-
-```C++
-class Solution {
-public:
-    int jump(vector<int>& nums) {
-        int n = nums.size();
-        int start = 0, end = start + 1;
-        int ans = 0;
-        while(end < n){
-            int nextStep;
-            for(int i = start; i < end; i++){
-                nextStep = max(nextStep, i + nums[i]);
-            }
-            ans++;
-            start = end;
-            end = nextStep + 1;
-        }
-        return ans;
-    }
-};
-```
-
-优化版
-
-```C++
-class Solution {
-public:
-    int jump(vector<int>& nums) {
-        int n = nums.size();
-        // end为边界下标，当前i能遍历的最大下标值
-        int end = 0;
-        int nextStep = 0;
-        int ans = 0;
-        // 问到nums[n - 1]需要的最小跳跃次数，因此不需要计算第n - 1个
-        for(int i = 0; i < n; i++){
-            nextStep = max(nextStep, i + nums[i]);
-            if(i == end){
-                ans++;
-                end = nextStep;
-            }
-        }
-        return ans;
-    }
-};
-```
-
 
 
 ## 46 全排列
@@ -3423,32 +3572,6 @@ public:
 ```
 
 
-
-## 55 跳跃游戏
-
-维护最大可达位置nextStep
-
-如果当前位置i <= nextStep，说明当前位置i可达，可跳到当前位置i上，更新最大可达位置
-
-如果最大可达位置比n - 1大，说明能够到达n - 1
-
-```C++
-class Solution {
-public:
-    bool canJump(vector<int>& nums) {
-        int n = nums.size();
-        int nextStep = 0;
-        for(int i = 0; i < n; i++){
-            if(i <= nextStep){
-                nextStep = max(nextStep, i + nums[i]);
-                if(nextStep >= n - 1)
-                    return true;
-            }
-        }
-        return false;
-    }
-};
-```
 
 
 
@@ -4227,24 +4350,6 @@ public:
         if(root == NULL) return false;
         if(!root->left && !root->right && targetSum == root->val)   return true;
         return hasPathSum(root->left, targetSum - root->val) || hasPathSum(root->right, targetSum - root->val);
-    }
-};
-```
-
-## 121 买卖股票的最佳时机
-
-贪心：找出最低的价格买入，找出最高的价格买出
-
-```C++
-class Solution {
-public:
-    int maxProfit(vector<int>& prices) {
-        int cost = INT_MAX, profit = 0;
-        for(int i = 0;i < prices.size(); i++){
-            cost = min(cost, prices[i]);
-            profit = max(profit, prices[i] - cost);
-        }
-        return profit;
     }
 };
 ```
@@ -5157,40 +5262,7 @@ public:
 
 空间复杂度：O(n)，其中 n 是温度列表的长度。需要维护一个单调栈存储温度列表中的下标。
 
-## 763 划分字母区间
 
-```C++
-class Solution {
-public:
-    vector<int> partitionLabels(string s) {
-        int n = s.size();
-        int last[26];
-        vector<int> res;
-        // 统计每个字符最后出现的下标
-        for(int i = 0; i < n; i++){
-            last[s[i] - 'a'] = i;
-        }
-        // start为区间开始点，end为区间结束点
-        // end一定为某区间内所有last[j]的最大值
-        int start = 0, end = 0;
-        for(int i = 0; i < n; i++){
-            end = max(end, last[s[i] - 'a']);
-            // i == end 说明区间终点end已确定 且已遍历到区间终点end
-            if(i == end){
-                res.push_back(end - start + 1);
-                start = end + 1;
-            }
-        }
-        return res;
-    }
-};
-```
-
-复杂度分析
-
-时间复杂度：O(n)，其中 n 是字符串的长度。需要遍历字符串两次，第一次遍历时记录每个字母最后一次出现的下标位置，第二次遍历时进行字符串的划分。
-
-空间复杂度：O(∣Σ∣)，其中 Σ 是字符串中的字符集。这道题中，字符串只包含小写字母，因此 ∣Σ∣=26。
 
 ## 912 排序数组
 
