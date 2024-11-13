@@ -347,6 +347,373 @@ public:
 
 
 
+### 53 最大子数组和
+
+#### 前缀和
+
+看到连续子数组的和会想到使用前缀和
+
+但是不同的地方在于，我们需要保证连续子数组的和最大，也就是说假设区间`[j,i]`的和最大，`sum[i] - sum[j - 1]`最大
+
+当我们遍历到`i`时，`sum[i]`可以i通过`sum[i] = sum[i - 1] + num[i]`获得，因此我们可以将其看作是定值
+
+那么想要和最大，就需要`sum[j - 1]`最小，方法也很简单，只需要遍历的时候维护一个最小值前缀和`preMin`即可
+
+
+
+**值得注意的是，计算顺序不能乱**，必须是：
+
+1. 计算前缀和pre
+2. 计算连续子数组和ans
+3. 更新最小前缀和
+
+如果Step2 和 Step3顺序交换，那么会出现`sum[i] - sum[j]`的情况，对应的区间是空的，而本题要求子数组至少含有一个元素
+
+```C++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int pre = 0;
+        // preMin初始化需要为0
+        // 保证第一个元素的ans为pre
+        int preMin = 0;
+        // ans可能为负数，因此需要定义为最小值
+        int ans = INT_MIN;
+        for(int num : nums){
+            // 更新前缀和
+            pre += num;
+            ans = max(ans, pre - preMin);
+            preMin = min(preMin, pre);
+        }
+        return ans;
+    }
+};
+```
+
+- 时间复杂度：O(*n*)，其中 *n* 为 *nums* 的长度。
+- 空间复杂度：O(1)。仅用到若干额外变量
+
+#### 动态规划
+
+思路也很简单：
+
+- 因为连续子数组的和是否取当前元素，取决于本元素前的元素的连续子数组的和，这符合动态规划
+- `dp[i]`表示`nums[i]`结尾的子数组的和的最大值
+- 递推公式`dp[i] = max(dp[i - 1], 0) + nums[i]`
+  - 如果前一个元素为负数，那么加上这个元素之后，连续子数组的和只会更小
+  - 只有前一个元素为非负数，加上这个元素之后，连续子数组的和才会更大
+- 初始化：`dp[0]`表示`nums[0]`结尾的子数组的和的最大值，也就是`nums[0]`
+- 遍历顺序：从左到右
+
+```C++
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> dp(n);
+        dp[0] = nums[0];
+        int ans = dp[0];
+        for(int i = 1; i < n; i++){
+            dp[i] = max(dp[i - 1], 0) + nums[i];
+            ans = max(ans,dp[i]);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+### 56 合并区间
+
+以下两种做法思路是一样的，第一种是我自己写的，第二种是别人的题解
+
+> 我觉得第二种更不容易写错，建议第二种
+
+#### 做法一
+
+这种做法的思路是：
+
+1. 对区间左端点进行排序
+2. 通过取前一个区间的start和end，与当前区间的start和end进行比较，如果当前区间的start比前一个区间的end小，合并当前区间和前一个区间
+3. 如果当前区间的start比前一个区间的end大，将前一个区间放入答案
+
+我们来思考最后两个区间
+
+当遍历结束到最后一个区间，有两种情况：
+
+- 前一个区间的终点比当前区间的起点大，合并两个区间，`end = max(end,intervals[i][1])`; -> 此时合并后的区间没有放入答案
+- 前一个区间的终点比当前区间的起点小，将前一个区间放入答案，更新`start = intervals[n - 1][0]`和`end = intervals[n - 1][1]`; -> 此时最后一个区间没有放入答案
+
+因此，我们需要多加一步，将最后的区间放入答案`ans.push_back({start, end});`
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        int n = intervals.size();
+      	// 对区间左端点进行排序
+        sort(intervals.begin(), intervals.end());
+      	// 前一个区间[start, end]的初始化
+        int start = intervals[0][0];
+        int end = intervals[0][1];
+        vector<vector<int>> ans;
+        for (int i = 1; i < n; i++) {
+          	// 如果前一个区间的终点比当前区间的起点大，说明要合并两个区间
+            if (intervals[i][0] <= end)
+                end = max(end,intervals[i][1]);
+          	// 否则，将前一个区间纳入答案，更新前一个区间[start, end]
+            else {
+                ans.push_back({start, end});
+                start = intervals[i][0];
+                end = intervals[i][1];
+            }
+        }
+      	// 以上处理了前n - 1个区间，还有最后一个区间没有放入答案
+        ans.push_back({start, end});
+        return ans;
+    }
+};
+```
+
+
+
+#### 做法二
+
+做法二聚焦于当前的区间，前一个区间放在ans的末端（把ans视作栈，`ans.back()`就是栈顶，通过更新`ans.back()`完成合并区间）
+
+放入答案的方式是将当前区间放入ans（做法一是将前一个区间放入ans）
+
+```C++
+class Solution {
+public:
+    vector<vector<int>> merge(vector<vector<int>>& intervals) {
+        sort(intervals.begin(), intervals.end());
+        vector<vector<int>> ans;
+        for(auto interval : intervals){
+            if(!ans.empty() && ans.back()[1] >= interval[0])
+                ans.back()[1] = max(ans.back()[1], interval[1]);
+            else
+                ans.push_back(interval);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+### 189 轮转数组
+
+k没有说一定比数组长度小，所以需要做取余处理`k = k % nums.size();`
+
+#### 做法一
+
+```C++
+class Solution {
+public:
+    void rotate(vector<int>& nums, int k) {
+        int n = nums.size();
+        vector<int> newArr(n);
+        for(int i = 0; i < n; i++){
+            int idx = (i + k) % n;
+            newArr[idx] = nums[i];
+        }
+        nums.assign(newArr.begin(), newArr.end());
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(n)$
+
+#### 做法二
+
+> 我也想不出怎么解释这个思路的来源，只能死记了
+
+思路见[https://leetcode.cn/problems/rotate-array/solutions/2784427/tu-jie-yuan-di-zuo-fa-yi-tu-miao-dong-py-ryfv/?envType=study-plan-v2&envId=top-100-liked](https://leetcode.cn/problems/rotate-array/solutions/2784427/tu-jie-yuan-di-zuo-fa-yi-tu-miao-dong-py-ryfv/?envType=study-plan-v2&envId=top-100-liked)
+
+```C++
+class Solution {
+public:
+    void rotate(vector<int>& nums, int k) {
+        k = k % nums.size();
+        reverse(nums.begin(), nums.end());
+        reverse(nums.begin(), nums.begin() + k);
+        reverse(nums.begin() + k, nums.end());
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(1)$
+
+
+
+### 238 除自身以外数组的乘积
+
+#### 暴力解法（超时）
+
+```C++
+class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> ans;
+        for(int i = 0; i < n; i++){
+            int res = 1;
+            for(int j = 0; j < i; j++){
+                res *= nums[j];
+            }
+            for(int j = i + 1; j < n; j++){
+                res *= nums[j];
+            }
+            ans.push_back(res);
+        }
+        return ans;
+    }
+};
+```
+
+时间复杂度：$O(n^2)$
+
+空间复杂度：$O(n)$
+
+
+
+#### 动态规划
+
+类似于前缀和的思路，我们计算前缀乘积和后缀乘积
+
+那么`nums[i]`除自身以外的乘积为`pre[i] * suf[i]`
+
+```C++
+class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> pre(n + 1, 1);
+        vector<int> suf(n + 1, 1);
+        vector<int> ans;
+        for(int i = 1; i < n; i++)
+            pre[i] = pre[i - 1] * nums[i - 1];
+        for(int i = n - 2; i >= 0; i--)
+            suf[i] = suf[i + 1] * nums[i + 1];
+        for(int i = 0; i < n; i++){
+            int res = pre[i] * suf[i];
+            ans.push_back(res);
+        }
+        return ans;
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(n)$
+
+
+
+#### 双指针
+
+思路：
+
+在动态规划做法中，我们使用了前缀乘积和后缀乘积，我们知道前缀和可以优化为一个变量，前缀乘积和后缀乘积同理
+
+- 前缀乘积：i从左到右遍历，pre *= nums[i]
+- 后缀乘积：j从右到左遍历，suf *= nums[j]
+- 在$O(n)$时间复杂度内完成，意味着i和j在一个循环内移动，也就是异侧双指针
+- 我们将问题分解：
+  - 元素nums[i]右边元素的乘积，也就是ans[i] *= suf
+  - 元素nums[i]左边元素的乘积，也就是ans[i] *= pre
+  - 在一个循环内完成，因此有ans[left] *= pre，ans[right] *= suf （left从0到n - 1，right从n - 1到0），也就是left和right分别遍历一遍数组就能完成计算
+
+```C++
+class Solution {
+public:
+    vector<int> productExceptSelf(vector<int>& nums) {
+        int n = nums.size();
+        vector<int> ans(n,1);
+        int pre = 1, suf = 1;
+      	// left < n && right >= 0可简化为left < n 或 right >= 0
+        for(int left = 0, right = n - 1; left < n && right >= 0; left++, right--){
+            ans[left] *= pre;
+            ans[right] *= suf;
+            pre *= nums[left];
+            suf *= nums[right];
+        }
+        return ans;
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(1)$
+
+
+
+### 41 缺失的第一个正数
+
+题目要求$O(n)$的时间复杂度和$O(1)$的空间复杂度，这意味着：
+
+- $O(1)$的空间复杂度 -> 只能在数组本身操作，不能使用 “把所有元素放入哈希表，再遍历查询”的方法
+- $O(n)$的时间复杂度 -> 不能使用“先排序再二分查找“的方法
+
+以下方法名为”原地哈希“，将值为1的元素放到索引0，值为2的元素放到索引1，值为i的元素放到索引i - 1...因此有nums[i] = i + 1
+
+具体做法：
+
+1. 计算当前元素值对应的索引idx，idx = nums[i] - 1
+2. 找到索引对应的元素nums[idx]
+3. 交换nums[i]和nums[idx]
+4. 交换后，nums[i]为新值，需要继续重复以上做法，直到满足nums[i] == i + 1
+
+当然，要注意以下条件：
+
+- 本题求的是正整数，因此值为负数的元素可忽略
+- n为数组长度，这意味着：n + 1是一定缺失的（如果某个元素大于等于n + 1，我们最后也会返回n + 1）
+  - 如果找不到前n个缺失的正整数，那么缺失的就是n + 1（n为数组长度）
+  - 如果某个元素值大于等于n + 1，那么也可以忽略，不用哈希
+
+```C++
+class Solution {
+public:
+    int firstMissingPositive(vector<int>& nums) {
+        int n = nums.size();
+        for(int i = 0; i < n; i++){
+            while(nums[i] != i + 1){
+                // 如果当前数是负数，不需要哈希
+                // 如果当前数为 n + 1， 不需要哈希，因为在前面的 n 个元素都找不到的情况下，我们才返回 n + 1
+                // 如果当前数和想要交换的数相同，需要跳出循环，否则会死循环
+                if(nums[i] <= 0 || nums[i] > n || nums[i] == nums[nums[i] - 1])
+                    break;
+                // 交换两个数
+                int idx = nums[i] - 1;
+                nums[i] = nums[idx];
+                nums[idx] = idx + 1;
+              	// 等价于
+              	// int idx = nums[i] - 1;
+              	// swap(nums[idx], nums[i]);
+            }
+        }
+        // 遍历一遍数组找到不符合的正整数
+        for(int i = 0;i < n;i++){
+            if(nums[i] != i + 1)
+                return i + 1;
+        }
+        // 如果没有，则返回n + 1
+        return n + 1;
+    }
+};
+```
+
+$O(n)$的时间复杂度 
+
+$O(1)$的空间复杂度 
+
 
 
 ### 总结
@@ -1013,6 +1380,110 @@ public:
     }
 };
 ```
+
+
+
+## 矩阵
+
+### 73 矩阵置零
+
+#### 暴力解法
+
+定义行数组`row`和列数组`col`表示行/列有元素0
+
+遍历一遍矩阵，找到元素0时，更新行数组`row`和列数组`col`为true
+
+判断`row[i] || col[j]`时，令矩阵为0
+
+```C++
+class Solution {
+public:
+    void setZeroes(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        int m = matrix[0].size();
+        vector<bool> row(n, false), col(m, false);
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j++){
+                if(!matrix[i][j]){
+                    row[i] = true;
+                    col[j] = true;
+                }
+            }
+        }
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m; j++){
+                if(row[i] || col[j])
+                    matrix[i][j] = 0;
+            }
+        }
+    }
+};
+```
+
+#### 优化1
+
+我们可以使用矩阵的第一行和第一列代替行数组`row`和列数组`col`
+
+但是这种代替方法会导致第一行和第一列原有的值丢失，因此我们需要保存第一行和第一列原有的值
+
+```C++
+class Solution {
+public:
+    void setZeroes(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        int m = matrix[0].size();
+      	// 保存第一行和第一列是否含有元素0的状态
+        bool firstRow = false, firstCol = false;
+        for(int i = 0; i < n; i++){
+            if(!matrix[i][0])
+                firstCol = true;
+        }
+        for(int j = 0; j < m; j++){
+            if(!matrix[0][j])
+                firstRow = true;
+        }
+      	// 检测除了第一行和第一列外其他部分是否出现元素0
+      	// matrix[i][0]保存第i行是否要置为0
+      	// matrix[0][j]保存第j列是否要置为0
+        for(int i = 1; i < n; i++){
+            for(int j = 1; j < m; j++){
+                if(!matrix[i][j]){
+                    matrix[i][0] = 0;
+                    matrix[0][j] = 0;
+                }
+            }
+        }
+      	// 将矩阵对应行/列置为0（不包括第一行和第一列）
+        for(int i = 1; i < n; i++){
+            for(int j = 1; j < m; j++){
+                if(!matrix[i][0] || !matrix[0][j])
+                    matrix[i][j] = 0;
+            }
+        }
+      	// 第一行和第一列额外处理
+        if(firstRow){
+            for(int j = 0; j < m; j++)
+                matrix[0][j] = 0;
+        }
+        if(firstCol){
+            for(int i = 0; i < n; i++)
+                matrix[i][0] = 0;
+        }
+    }
+};
+```
+
+
+
+#### 优化2
+
+优化1使用了两个标记变量`firstRow`和`firstCol`，我们还可以优化为一个标记变量
+
+> 但是我觉得不是特别必要这样优化
+>
+> 思路见
+>
+> https://leetcode.cn/problems/set-matrix-zeroes/solutions/669901/ju-zhen-zhi-ling-by-leetcode-solution-9ll7/?envType=study-plan-v2&envId=top-100-liked
 
 
 
@@ -2814,6 +3285,79 @@ public:
 
 
 
+### 76 最小覆盖子串
+
+又是子串，我们立即想到使用滑动窗口
+
+**思路**
+
+1. 首先想到的肯定是暴力解法：暴力枚举 + 哈希表
+2. 然后在分析的过程中，发现双指针同向不回退，就可以利用这个单调性，联想到滑动窗口解法：滑动窗口 + 哈希表
+
+**解题方法**
+
+1. 先创建两个哈希表，用来统计两个字符串中字符出现的次数
+2. 再将要覆盖的字符串t，存入哈希表baseHash
+3. 设置pos和minLen，用来记录子串的初始位置和最小长度（这步很关键，我们可以等循环结束再拷贝子串，而不是循环中，减少了很多时间开销）
+4. **其次设置count，用来记录curHash中的有效字符个数（这步优化，可以让我们不用每次都一一比较两个哈希表，而是比较count是否达到t的有效字符个数）**
+
+接下来，是正常的滑动窗口四步走（详见代码）：
+
+- 进窗口
+- 判断
+- 出窗口
+- 处理结果（这步的位置根据题目要求而变化）
+
+**复杂度**
+
+- 时间复杂度:O(m+n)
+
+- 空间复杂度:O(1)
+
+
+```C++
+class Solution {
+public:
+    string minWindow(string s, string t) {
+        // hs记录s的字符和个数
+        // ht记录t的字符和个数
+        unordered_map<char,int> hs,ht;
+        int sLen = s.size();
+        int tLen = t.size();
+        string res;
+        if(sLen < tLen)
+            return res;
+        for(auto c: t){
+            ht[c]++;
+        }
+        // cnt用于记录需要的字符数
+        int cnt = 0;
+        // 遍历s
+        for(int right = 0, left = 0; right < sLen; right++){
+            hs[s[right]]++;
+            // 如果当前窗口内hs含有字符s[i]个数比ht少
+            // 说明当前字符s[i]是必须的
+            // 说明窗口需要继续扩展
+            if(hs[s[right]] <= ht[s[right]])
+                cnt++;
+            // s[j]是多余的
+            // 收缩窗口
+            while(hs[s[left]] > ht[s[left]]){
+                hs[s[left]]--;
+                left++;
+            }
+            if(cnt == t.size()){
+                if(res.empty() || right - left + 1 < res.size())
+                    res = s.substr(left, right - left + 1);
+            }
+        }
+        return res;
+    }
+};
+```
+
+## 
+
 ## 子串
 
 ### 560 和为k的子数组
@@ -2902,6 +3446,8 @@ public:
 空间复杂度：$O(n)$
 
 
+
+## 
 
 ## 贪心
 
@@ -3549,76 +4095,11 @@ public:
 };
 ```
 
-## 53 最大子数组和
-
-```C++
-class Solution {
-public:
-    int maxSubArray(vector<int>& nums) {
-        int n = nums.size();
-        vector<int> dp(n,0);
-        dp[0] = nums[0];
-        int ans = dp[0];
-        for(int i = 1; i < n; i++){
-            if(dp[i - 1] >= 0)
-                dp[i] = dp[i - 1] + nums[i];
-            else
-                dp[i] = nums[i];
-            ans = max(ans, dp[i]);
-        }
-        return ans;
-    }
-};
-```
 
 
 
 
 
-
-
-## 76 最小覆盖子串
-
-```C++
-class Solution {
-public:
-    string minWindow(string s, string t) {
-        // hs记录s的字符和个数
-        // ht记录t的字符和个数
-        unordered_map<char,int> hs,ht;
-        int sLen = s.size();
-        int tLen = t.size();
-        string res;
-        if(sLen < tLen)
-            return res;
-        for(auto c: t){
-            ht[c]++;
-        }
-        // cnt用于记录需要的字符数
-        int cnt = 0;
-        // 遍历s
-        for(int i = 0, j = 0; i < sLen; i++){
-            hs[s[i]]++;
-            // 如果当前窗口内hs含有字符s[i]个数比ht少
-            // 说明当前字符s[i]是必须的
-            // 说明窗口需要继续扩展
-            if(hs[s[i]] <= ht[s[i]])
-                cnt++;
-            // s[j]是多余的
-            // 收缩窗口
-            while(hs[s[j]] > ht[s[j]]){
-                hs[s[j]]--;
-                j++;
-            }
-            if(cnt == t.size()){
-                if(res.empty() || i - j + 1 < res.size())
-                    res = s.substr(j, i - j + 1);
-            }
-        }
-        return res;
-    }
-};
-```
 
 ## 回溯问题
 
