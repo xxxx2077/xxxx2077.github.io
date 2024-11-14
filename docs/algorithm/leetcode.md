@@ -264,6 +264,60 @@ public:
 
 空间复杂度：O(1)
 
+### 54 螺旋矩阵
+
+和螺旋矩阵II n行n列 不同，螺旋矩阵这道题是m行n列，这意味着：
+
+- 我们如果按螺旋矩阵左闭右开区间不一定能遍历完所有元素，例如对于1行2列[1,2]，按螺旋矩阵II的做法只能遍历元素1 -> 采用左闭右闭区间
+- 我们需要定义四个变量：起始行和终止行，起始列和终止列
+- 并且我们无法确定遍历的次数，因为行列长度不同 -> 采用while(true)
+
+本题思路大致如下图：
+
+![fig1](/Users/t/Desktop/xxxx2077.github.io/docs/algorithm/leetcode.assets/54_fig1.png)
+
+```C++
+class Solution {
+public:
+    vector<int> spiralOrder(vector<vector<int>>& matrix) {
+        if(matrix.size() == 0 || matrix[0].size() == 0)
+            return {};
+
+        vector<int> ans;
+        int startCol = 0, endCol = matrix[0].size() - 1; // 记录行的开头与结尾
+        int startRow = 0, endRow = matrix.size() - 1; // 记录列的开头与结尾
+
+        while(true)
+        {
+            // 从左往右
+            for(int i = startCol; i <= endCol; i++)
+                ans.push_back(matrix[startRow][i]);
+            if(++startRow > endRow) break;
+
+            // 从上往下
+            for(int i = startRow; i <= endRow; i++)
+                ans.push_back(matrix[i][endCol]);
+            if(--endCol < startCol) break;
+
+            // 从右往左
+            for(int i = endCol; i >= startCol; i--)
+                ans.push_back(matrix[endRow][i]);
+            if(--endRow < startRow) break;
+
+            // 从下往上
+            for(int i = endRow; i >= startRow; i--)
+                ans.push_back(matrix[i][startCol]);
+            if(++startCol > endCol) break;
+        }
+        return ans;
+    }
+};
+```
+
+时间复杂度：O(mn)，其中 m 和 n 分别是输入矩阵的行数和列数。矩阵中的每个元素都要被访问一次。
+
+空间复杂度：O(1)。除了输出数组以外，空间复杂度是常数。
+
 
 
 ### 59 螺旋矩阵II
@@ -1486,6 +1540,169 @@ public:
 > https://leetcode.cn/problems/set-matrix-zeroes/solutions/669901/ju-zhen-zhi-ling-by-leetcode-solution-9ll7/?envType=study-plan-v2&envId=top-100-liked
 
 
+
+### 48 旋转图像
+
+官方题解已经说的非常详细
+
+[https://leetcode.cn/problems/rotate-image/?envType=study-plan-v2&envId=top-100-liked](https://leetcode.cn/problems/rotate-image/?envType=study-plan-v2&envId=top-100-liked ) 
+
+#### 普通做法
+
+```C++
+class Solution {
+public:
+    void rotate(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        vector<vector<int>> newMatrix(n, vector<int>(n, 0));
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < n; j++){
+                newMatrix[j][n - 1 - i] = matrix[i][j];
+            }
+        }
+        matrix.assign(newMatrix.begin(),newMatrix.end());
+    }
+};
+```
+
+
+
+#### 原地旋转
+
+##### 方法一
+
+```C++
+class Solution {
+public:
+    void rotate(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        for (int row = 0; row < n / 2; row++) {
+            for (int col = 0; col < (n + 1) / 2; col++) {
+                int temp = matrix[row][col];
+                matrix[row][col] = matrix[n - 1 - col][row];
+                matrix[n - 1 - col][row] = matrix[n - 1 - row][n - 1 - col];
+                matrix[n - 1 - row][n - 1 - col] = matrix[col][n - 1 - row];
+                matrix[col][n - 1 - row] = temp;
+            }
+        }
+    }
+};
+```
+
+复杂度分析
+
+时间复杂度：$O(N^2)$，其中 N 是 matrix 的边长。我们需要枚举的子矩阵大小为 $O(⌊n/2⌋×⌊(n+1)/2⌋)=O(N^2 )$。
+
+空间复杂度：$O(1)$。为原地旋转。
+
+
+
+##### 方法二
+
+```C++
+class Solution {
+public:
+    void rotate(vector<vector<int>>& matrix) {
+        int n = matrix.size();
+        //  先矩阵转置
+        // 注意矩阵转置时，因为对称性，我们只需要遍历上三角
+        for (int i = 0; i < n; i++) {
+            for (int j = i + 1; j < n; j++) {
+                swap(matrix[i][j], matrix[j][i]);
+            }
+        }
+        // 再左右对称的两列互换
+        for (int j = 0; j < n / 2; j++) {
+            for (int i = 0; i < n; i++) {
+                swap(matrix[i][j], matrix[i][n - 1 - j]);
+            }
+        }
+    }
+};
+```
+
+复杂度分析
+
+时间复杂度：$O(N^2)$，其中 N 是 matrix 的边长。对于每一次翻转操作，我们都需要枚举矩阵中一半的元素。
+
+空间复杂度：$O(1)$。为原地翻转得到的原地旋转。
+
+
+
+### 240 搜索二维矩阵II
+
+https://leetcode.cn/problems/search-a-2d-matrix-ii/description/
+
+#### 解法一：暴力枚举
+
+无脑解法，没有利用题意“升序”
+
+```C++
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        for(int i = 0; i < matrix.size(); i++){
+            for(int j = 0; j < matrix[i].size(); j++){
+                if(matrix[i][j] == target)
+                    return true;
+            }
+        }
+        return false;
+    }
+};
+```
+
+**复杂度分析**
+
+- 时间复杂度：*O*(*mn*)。
+- 空间复杂度：*O*(1)。
+
+#### 解法二：二分查找
+
+利用题意“升序”可直接二分查找
+
+```c++
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+      	// 这里要用引用，不然会报内存超出
+        for(const auto &row : matrix){
+            auto it = lower_bound(row.begin(), row.end(), target);
+            if(it != row.end() && *it == target)   return true;
+        }
+        return false;
+    }
+};
+```
+
+
+
+#### 解法三：二叉搜索树
+
+https://leetcode.cn/problems/search-a-2d-matrix-ii/solutions/2361487/240-sou-suo-er-wei-ju-zhen-iitan-xin-qin-7mtf
+
+将矩阵逆时针旋转45度，将其变成二叉搜索树
+
+以右上角为根节点
+
+如果超出边界，说明无解
+
+```c++
+class Solution {
+public:
+    bool searchMatrix(vector<vector<int>>& matrix, int target) {
+        int i = 0, j = matrix[0].size() - 1;
+        while(i <= matrix.size() - 1 && j >= 0 ){
+            if(matrix[i][j] == target) return true;
+            if(matrix[i][j] < target) i++;
+            else j--;
+        }
+        return false;
+    }
+};
+```
+
+## 
 
 ## 动态规划
 
@@ -3449,6 +3666,463 @@ public:
 
 ## 
 
+## 二叉树
+
+理论基础
+
+https://programmercarl.com/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%90%86%E8%AE%BA%E5%9F%BA%E7%A1%80.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE
+
+### 二叉树遍历
+
+- 深度优先遍历（前中后的区别：输出元素的顺序，前就是第一个，中就是中间，后就是最后）
+  - 前序遍历
+  - 中序遍历
+  - 后序遍历
+- 广度优先遍历
+  - 层序遍历
+
+#### 144 二叉树的前序遍历
+
+##### 递归版
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    vector<int> ans;
+    void preOrder(TreeNode* root){
+        if(!root)
+            return;
+        ans.push_back(root->val);
+        preOrder(root->left);
+        preOrder(root->right);
+    }
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        preOrder(root);
+        return ans;
+    }
+};
+```
+
+
+
+##### 迭代版
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        if(!root)
+            return {};
+        // 模拟递归函数调用顺序
+        stack<TreeNode*> stk;
+        // 存放结果
+        vector<int> ans;
+        stk.push(root);
+        while(!stk.empty()){
+            TreeNode* cur = stk.top();
+            stk.pop();
+            ans.push_back(cur->val);
+          	// 注意放入栈的顺序与实际调用顺序相反
+            if(cur->right)
+                stk.push(cur->right);
+            if(cur->left)
+                stk.push(cur->left);
+        }
+        return ans;
+    }
+};
+```
+
+
+
+#### 94 二叉树的中序遍历
+
+##### 递归版
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    vector<int> ans;
+    void inOrder(TreeNode* root){
+        if(!root)
+            return;
+        inOrder(root->left);
+        ans.push_back(root->val);
+        inOrder(root->right);
+    }
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        inOrder(root);
+        return ans;
+    }
+};
+```
+
+
+
+##### 迭代版
+
+中序遍历迭代写法与前序遍历不同之处在于：
+
+- 前序遍历访问节点的顺序与处理节点的顺序相同：第一个访问的就是根节点，第一个处理的也是根节点
+- 中序遍历访问节点的顺序与处理节点的顺序不同：第一个访问的是根节点，第一个处理的是左节点（遇见左节点会直接触发递归，直到没有左节点为止）
+
+因此中序遍历迭代写法使用栈存储左节点，根节点和右节点在函数体内处理，不存入栈，否则会破坏函数调用顺序
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
+ * right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        if (!root)
+            return {};
+        stack<TreeNode*> stk;
+        vector<int> ans;
+        TreeNode* cur = root;
+        while (cur || !stk.empty()) {
+            if (cur) {
+                stk.push(cur);
+                cur = cur->left;
+            }
+            else{
+                cur = stk.top();
+                stk.pop();
+                ans.push_back(cur->val);
+                cur = cur->right;
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
+#### 145 二叉树的后序遍历
+
+##### 递归版
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    vector<int> ans;
+    void postOrder(TreeNode* root){
+        if(!root)
+            return;
+        postOrder(root->left);
+        postOrder(root->right);
+        ans.push_back(root->val);
+    }
+public:
+    vector<int> postorderTraversal(TreeNode* root) {
+        postOrder(root);
+        return ans;
+    }
+};
+```
+
+
+
+##### 迭代版
+
+再来看后序遍历，先序遍历是中左右，后序遍历是左右中，那么我们只需要调整一下先序遍历的代码顺序，就变成中右左的遍历顺序，然后在反转result数组，输出的结果顺序就是左右中了，如下图：
+
+![前序到后序](/Users/t/Desktop/xxxx2077.github.io/docs/algorithm/leetcode.assets/20200808200338924.png)
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode* root) {
+        if(!root)
+            return {};
+        vector<int> ans;
+        stack<TreeNode*> stk;
+        stk.push(root);
+        while(!stk.empty()){
+            TreeNode* cur = stk.top();
+            stk.pop();
+            ans.push_back(cur->val);
+            if(cur->left)
+                stk.push(cur->left);
+            if(cur->right)
+                stk.push(cur->right);
+        }
+        reverse(ans.begin(), ans.end());
+        return ans;
+    }
+};
+```
+
+
+
+#### 102 二叉树的层序遍历
+
+以下做法告诉我们，二叉树层序遍历中，队列存储的是每一层的节点
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
+ * right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<vector<int>> levelOrder(TreeNode* root) {
+        if (!root)
+            return {};
+        queue<TreeNode*> q;
+        q.push(root);
+        vector<vector<int>> ans;
+        while (!q.empty()) {
+            // 记录这一层有多少个节点
+            int size = q.size();
+            vector<int> res;
+            // 输出这一层的所有节点，并更新queue
+            for (int i = 0; i < size; i++) {
+                TreeNode* cur = q.front();
+                q.pop();
+                res.push_back(cur->val);
+                if (cur->left)
+                    q.push(cur->left);
+                if (cur->right)
+                    q.push(cur->right);
+            }
+            ans.push_back(res);
+        }
+        return ans;
+    }
+};
+```
+
+#### 104 二叉树的最大深度
+
+##### 深度优先遍历
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if(!root)
+            return 0;
+        return max(maxDepth(root->left), maxDepth(root->right)) + 1;
+    }
+};
+```
+
+
+
+##### 层序遍历
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if(!root)
+            return 0;
+        queue<TreeNode*> q;
+        q.push(root);
+        int ans = 0;
+        while(!q.empty()){
+            int size = q.size();
+            for(int i = 0; i < size; i++){
+                TreeNode* cur = q.front();
+                q.pop();
+                if(cur->left)
+                    q.push(cur->left);
+                if(cur->right)
+                    q.push(cur->right);
+            }
+            ans++;
+        }
+        return ans;
+    }
+};
+```
+
+
+
+#### 199 二叉树的右视图
+
+右侧所能看到的节点 其实就是每层节点的最后一个节点 -> 需要我们按层遍历，而且找到每层的最后一个节点
+
+因此本题使用层序遍历，最后一个节点通过索引size - 1得到
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    vector<int> rightSideView(TreeNode* root) {
+        if(!root)
+            return {};
+        vector<int> ans;
+        queue<TreeNode*> q;
+        q.push(root);
+        while(!q.empty()){
+            int size = q.size();
+            for(int i = 0; i < size; i++){
+                TreeNode* cur = q.front();
+                q.pop();
+                if(i == size - 1)
+                    ans.push_back(cur->val);
+                if(cur->left)
+                    q.push(cur->left);
+                if(cur->right)
+                    q.push(cur->right);
+            }
+        }
+        return ans;
+    }
+};
+```
+
+
+
+### 226 翻转二叉树
+
+#### 递归
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if(!root)
+            return nullptr;
+        TreeNode* left = invertTree(root->left);
+        TreeNode* right = invertTree(root->right);
+        root->left = right;
+        root->right = left;
+        return root;
+    }
+};
+```
+
+
+
+#### 迭代
+
+```
+
+```
+
+
+
 ## 贪心
 
 ### 121 买卖股票的最佳时机
@@ -5312,79 +5986,6 @@ public:
 时间复杂度：O(n)，其中 n 指的是链表的大小。
 
 空间复杂度：O(1)。我们只会修改原本链表中节点的指向，而在堆栈上的堆栈帧不超过 O(1)。
-
-## 240 搜索二维矩阵II
-
-https://leetcode.cn/problems/search-a-2d-matrix-ii/description/
-
-### 解法一：暴力枚举
-
-无脑解法，没有利用题意“升序”
-
-```C++
-class Solution {
-public:
-    bool searchMatrix(vector<vector<int>>& matrix, int target) {
-        for(int i = 0; i < matrix.size(); i++){
-            for(int j = 0; j < matrix[i].size(); j++){
-                if(matrix[i][j] == target)
-                    return true;
-            }
-        }
-        return false;
-    }
-};
-```
-
-**复杂度分析**
-
-- 时间复杂度：*O*(*mn*)。
-- 空间复杂度：*O*(1)。
-
-### 解法二：二分查找
-
-利用题意“升序”可直接二分查找
-
-```c++
-class Solution {
-public:
-    bool searchMatrix(vector<vector<int>>& matrix, int target) {
-      	// 这里要用引用，不然会报内存超出
-        for(const auto &row : matrix){
-            auto it = lower_bound(row.begin(), row.end(), target);
-            if(it != row.end() && *it == target)   return true;
-        }
-        return false;
-    }
-};
-```
-
-
-
-### 解法三：
-
-https://leetcode.cn/problems/search-a-2d-matrix-ii/solutions/2361487/240-sou-suo-er-wei-ju-zhen-iitan-xin-qin-7mtf
-
-将矩阵逆时针旋转45度，将其变成二叉搜索树
-
-以右上角为根节点
-
-如果超出边界，说明无解
-
-```c++
-class Solution {
-public:
-    bool searchMatrix(vector<vector<int>>& matrix, int target) {
-        int i = 0, j = matrix[0].size() - 1;
-        while(i <= matrix.size() - 1 && j >= 0 ){
-            if(matrix[i][j] == target) return true;
-            if(matrix[i][j] < target) i++;
-            else j--;
-        }
-        return false;
-    }
-};
-```
 
 ## 279 完全平方数
 
