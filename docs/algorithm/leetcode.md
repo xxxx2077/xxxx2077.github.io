@@ -4113,15 +4113,892 @@ public:
 };
 ```
 
+时间复杂度 O(N) ： 其中 N 为二叉树的节点数量，建立二叉树镜像需要遍历树的所有节点，占用 O(N) 时间。
+空间复杂度 O(N) ： 最差情况下（当二叉树退化为链表），递归时系统需使用 O(N) 大小的栈空间。
+
+#### 迭代
+
+算法流程：
+
+1. 特例处理： 当 root 为空时，直接返回 null 。
+2. 初始化： 栈（或队列），本文用栈，并加入根节点 root 。
+3. 循环交换： 当栈 stack 为空时跳出。
+   1. 出栈： 记为 node 。
+   2. 添加子节点： 将 node 左和右子节点入栈。
+   3. 交换： 交换 node 的左 / 右子节点。
+4. 返回值： 返回根节点 root 。
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if(!root)
+            return nullptr;
+        stack<TreeNode*> stk;
+        stk.push(root);
+        while(!stk.empty()){
+            TreeNode* cur = stk.top();
+            stk.pop();
+            if(cur->left)
+                stk.push(cur->left);
+            if(cur->right)
+                stk.push(cur->right);
+            // 交换两个节点
+            TreeNode* temp = cur->right;
+            cur->right = cur->left;
+            cur->left = temp;
+        }
+        return root;
+    }
+};
+```
+
+
+
+### 101 对称二叉树
+
+判断对称二叉树的逻辑：
+
+1. 找到两个子树
+2. 判断两个子树的根节点u和v的值是否相同
+3. 如果相同，接着判断u->left和v->right的值是否相同 以及 u->right和v->left的值是否相同
+4. 直到遍历完整个二叉树为止
+
+#### 递归
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool check(TreeNode* u, TreeNode* v){
+        if(!u && !v)
+            return true;
+        if(!u || !v)
+            return false;
+        return u->val == v->val && check(u->left, v->right) && check(u->right, v->left);
+    }
+    bool isSymmetric(TreeNode* root) {
+        if(!root)
+            return true;
+        return check(root->left, root->right);
+    }
+};
+```
+
+假设树上一共 n 个节点。
+
+时间复杂度：这里遍历了这棵树，渐进时间复杂度为 O(n)。
+空间复杂度：这里的空间复杂度和递归使用的栈空间有关，这里递归层数不超过 n，故渐进空间复杂度为 O(n)。
+
 
 
 #### 迭代
 
+每一层比较是否对称，比较方法：
+
+- 在队列中加入两个根节点
+- 每次取出两个根节点，进行比较
+  - 如果都为空，对称
+  - 如果有一个不为空，一个为空，不对称
+  - 如果值相同，对称
+- 把这两个根节点的左节点和右节点对称放入队列
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
+ * right(right) {}
+ * };
+ */
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        if (!root)
+            return true;
+        queue<TreeNode*> q;
+        q.push(root);
+        q.push(root);
+        while (!q.empty()) {
+            TreeNode* node1 = q.front();
+            q.pop();
+            TreeNode* node2 = q.front();
+            q.pop();
+            if(!node1 && !node2)
+                continue;
+            if (!node1 || !node2 || node1->val != node2->val)
+                return false;
+            q.push(node1->left);
+            q.push(node2->right);
+
+            q.push(node1->right);
+            q.push(node2->left);
+        }
+        return true;
+    }
+};
 ```
 
+时间复杂度：O(n)，同「方法一」。
+空间复杂度：这里需要用一个队列来维护节点，每个节点最多进队一次，出队一次，队列中最多不会超过 n 个点，故渐进空间复杂度为 O(n)
+
+
+
+### 543 二叉树的直径
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    // ans记录经过的节点数
+    // 两节点之间路径的长度由节点之间的边数表示
+    // 也就是说直径为ans - 1（节点数 - 1 = 边数）
+    int ans;
+    int depth(TreeNode* root){
+        // 注意边界条件
+        if(!root)
+            return 0;
+        // 计算根节点左右子树的最大深度（最大节点数）
+        int leftDepth = depth(root->left);
+        int rightDepth = depth(root->right);
+        // 更新本子树的最大节点数leftDepth + rightDepth + 1（1是根节点）
+        ans = max(ans, leftDepth + rightDepth + 1);
+        // 返回本子树的深度max(leftDepth, rightDepth) + 1（1是根节点）
+        return max(leftDepth, rightDepth) + 1;
+    }
+public:
+    int diameterOfBinaryTree(TreeNode* root) {
+        if(!root)
+            return 0;
+        // 这个d其实并不重要，因为不一定经过root
+        int d = depth(root);
+        // 直径为最大节点数 - 1
+        return ans - 1;
+    }
+};
+```
+
+**复杂度分析**
+
+时间复杂度：O(N)，其中 N 为二叉树的节点数，即遍历一棵二叉树的时间复杂度，每个结点只被访问一次。
+
+空间复杂度：O(Height)，其中 Height 为二叉树的高度。由于递归函数在递归过程中需要为每一层递归函数分配栈空间，所以这里需要额外的空间且该空间取决于递归的深度，而递归的深度显然为二叉树的高度，并且每次递归调用的函数里又只用了常数个变量，所以所需空间复杂度为 O(Height) 。
+
+
+
+### 108 将有序数组转换为二叉搜索树
+
+> 给定中序遍历结果求二叉搜索树，结果不一定唯一
+>
+> 给定中序遍历结果求**平衡的**二叉搜索树，结果不一定唯一
+>
+> 因此，题目给出了多种可能的答案，表示都可以
+
+思路：
+
+1. 二叉搜索树的中序遍历是递增数组
+2. 我们每次取二叉搜索树的中间值，这个值就是根节点
+3. 根节点左边是它的左子树，右边是它的右子树
+4. 接着重复步骤2和步骤3，即可获得二叉搜索树
+
+**有个小坑：**
+
+如何证明以上做法能够保证二叉搜索树是平衡的
+
+证明见以下链接
+
+https://leetcode.cn/problems/balance-a-binary-search-tree/solutions/241897/jiang-er-cha-sou-suo-shu-bian-ping-heng-by-leetcod/
+
+```c++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    TreeNode* dfs(vector<int>& nums, int start, int end){
+        if(start > end)
+            return nullptr;
+        int mid = (start + end) / 2;
+        TreeNode* root = new TreeNode(nums[mid]);
+        root->left = dfs(nums, start, mid - 1);
+        root->right = dfs(nums, mid + 1, end);
+        return root;
+    }
+public:
+    TreeNode* sortedArrayToBST(vector<int>& nums) {
+        return dfs(nums, 0 ,nums.size() - 1);
+    }
+};
+```
+
+**复杂度分析**
+
+时间复杂度：O(n)，其中 n 是数组的长度。每个数字只访问一次。
+
+空间复杂度：O(logn)，其中 n 是数组的长度。空间复杂度不考虑返回值，因此空间复杂度主要取决于递归栈的深度，递归栈的深度是 O(logn)。
+
+
+
+### 98 验证二叉搜索树
+
+#### 中序遍历（递归直接版）
+
+通过中序遍历得到最后的有序序列，遍历一遍有序序列看看是否递增
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    vector<long long> ans;
+    void inOrder(TreeNode* root){
+        if(!root)
+            return;
+        inOrder(root->left);
+        ans.push_back(root->val);
+        inOrder(root->right);
+    }
+public:
+    bool isValidBST(TreeNode* root) {
+        inOrder(root);
+        long long pre = (long long)INT_MIN - 1;
+        for(long long num : ans){
+            if(num <= pre)
+                return false;
+            pre = num;
+        }     
+        return true;
+    }
+};
+```
+
+但这种方法时间复杂度和空间复杂度有点高
+
+
+
+#### 中序遍历（递归优化版）
+
+我们可以在中序遍历过程中判断是否符合有序序列，即只需要判断中序遍历访问的当前节点与访问的上一个节点是否满足有序
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    vector<long long> ans;
+    long long pre = (long long)INT_MIN - 1;
+    bool inOrder(TreeNode* root){
+        if(!root)
+            return true;
+        bool leftRes = inOrder(root->left);
+        if(root->val <= pre)
+            return false;
+        pre = root->val;
+        bool rightRes = inOrder(root->right);
+        return leftRes && rightRes;        
+    }
+public:
+    bool isValidBST(TreeNode* root) {
+        return inOrder(root);
+    }
+};
 ```
 
 
+
+### 230 二叉搜索树第k小的元素
+
+#### 中序遍历（直接版）
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    vector<int> ans;
+    void inOrder(TreeNode* root){
+        if(!root)
+            return;
+        inOrder(root->left);
+        ans.push_back(root->val);
+        inOrder(root->right);
+    }
+public:
+    int kthSmallest(TreeNode* root, int k) {
+        inOrder(root); 
+        return ans[k - 1];
+    }
+};
+```
+
+
+
+#### 中序遍历（优化版）
+
+所谓优化就是不需要遍历整棵树，遍历过程中找到对应的节点就可以返回
+
+##### 递归
+
+感觉用递归不太适合，这里就不贴出来了
+
+
+
+##### 迭代
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+public:
+    int kthSmallest(TreeNode* root, int k) {
+        stack<TreeNode*> stk;
+        TreeNode* cur = root;
+        while(cur || !stk.empty()){
+            if(cur){
+                stk.push(cur);
+                cur = cur->left;
+            }else{
+                cur = stk.top();
+                stk.pop();
+                // 从k - 1开始计数
+                k--;
+                // 因此k == 0时对应第k个小的值
+                if(k == 0)
+                    return cur->val;
+                cur = cur->right;
+            }
+        }
+        return 0;
+    }
+};
+```
+
+复杂度分析
+
+时间复杂度：O(H+k)，其中 H 是树的高度。在开始遍历之前，我们需要 O(H) 到达叶结点。当树是平衡树时，时间复杂度取得最小值 O(logN+k)；当树是线性树（树中每个结点都只有一个子结点或没有子结点）时，时间复杂度取得最大值 O(N+k)。
+
+空间复杂度：O(H)，栈中最多需要存储 H 个元素。当树是平衡树时，空间复杂度取得最小值 O(logN)；当树是线性树时，空间复杂度取得最大值 O(N)
+
+
+
+#### 方法二：记录子树的结点数
+
+> 如果二叉搜索树经常被修改（插入/删除操作）并且你需要频繁地查找第 `k` 小的值，你将如何优化算法？
+
+详见题解：
+
+https://leetcode.cn/problems/kth-smallest-element-in-a-bst/solutions/1050055/er-cha-sou-suo-shu-zhong-di-kxiao-de-yua-8o07/?envType=study-plan-v2&envId=top-100-liked
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    unordered_map<TreeNode*,int> nodeNum;
+    int setNodeNum(TreeNode* node){
+        if(!node)
+            return 0;
+        int leftNum = setNodeNum(node->left);
+        int rightNum = setNodeNum(node->right);
+        nodeNum[node] = leftNum + rightNum + 1;
+        return nodeNum[node];
+    }
+    int getNodeNum(TreeNode* node){
+        if(node && nodeNum.count(node))
+            return nodeNum[node];
+        else
+            return 0;
+    }
+public:
+    int kthSmallest(TreeNode* root, int k) {
+        if(!root)
+            return 0;
+        setNodeNum(root);
+        TreeNode* node = root;
+        while(node){
+            int leftNum = getNodeNum(node->left);
+            // 如果左子树节点树比 k - 1小，说明第k个数在右子树
+            // 此时左子树有 leftNum 个节点
+            // 也就是说此时我们已经找到了第k个节点左边的leftNum个节点
+            // 我们还需要填充k - 1 - leftNum个节点，就可以找到第k个节点
+            // 因此k = k - 1 - leftNum
+            if(leftNum < k - 1){
+                node = node->right;
+                k -= leftNum + 1;
+            }else if (leftNum == k - 1){
+                return node->val;
+            }else{
+                node = node->left;
+            }
+        }
+        return 0;
+    }
+};
+```
+
+下一次寻找第k小的节点，只需要查找哈希表即可，为$O(1)$时间复杂度
+
+
+
+### 114 二叉树展开为链表
+
+#### 迭代
+
+思路：
+
+- 将左子树插入到右子树的地方
+- 将原来的右子树接到左子树的最右边节点
+- 考虑新的右子树的根节点，一直重复上边的过程，直到新的右子树为 null
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left),
+ * right(right) {}
+ * };
+ */
+class Solution {
+public:
+    void flatten(TreeNode* root) {
+        TreeNode* cur = root;
+        while (cur) {
+          	// move表示左子树的最右边节点
+          	// move是右子树需要接上的位置
+            TreeNode* move = cur->left;
+            while (move && move->right) {
+                move = move->right;
+            }
+          	// 这里需要判断move是否为空
+          	// 如果一开始cur->left不为空（左子树不为空），那么move不为空
+          	// 如果一开始cur->left为空（左子树为空），那么move为空
+          	// 如果左子树不为空所以要进行操作
+            if (move) {
+                move->right = cur->right;
+                cur->right = cur->left;
+                cur->left = nullptr;
+            }
+          	// 移动到右子树和左子树是否为空没关系
+            cur = cur->right;
+        }
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(1)$
+
+
+
+#### 反前序遍历
+
+递归+回溯的思路：
+
+将前序遍历反过来遍历，那么第一次访问的就是前序遍历中最后一个节点。
+
+那么可以调整最后一个节点，再将最后一个节点保存到pre里，再调整倒数第二个节点，将它的右子树设置为pre，再调整倒数第三个节点，依次类推直到调整完毕。和反转链表的递归思路是一样的。
+
+```C++
+class Solution {
+public:
+    TreeNode* preNode;
+    void flatten(TreeNode* root) {
+        if (root == NULL) return;
+        flatten(root->right);
+        flatten(root->left);
+        root->left = NULL;
+        root->right = preNode;
+        preNode = root;
+    }
+};
+```
+
+时间复杂度：$O(n)$
+
+空间复杂度：$O(n)$
+
+
+
+### 105 从前序与中序遍历构造二叉树
+
+#### 直接做法
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    TreeNode* myBuildTree(vector<int>& preorder, vector<int>& inorder, int preorderStart, int preorderEnd, int inorderStart, int inorderEnd){
+        if(preorderStart > preorderEnd || inorderStart > inorderEnd)
+            return nullptr;
+        auto it = find(inorder.begin()+inorderStart, inorder.begin()+inorderEnd + 1, preorder[preorderStart]);
+        int pos = distance(inorder.begin(), it);
+        int leftSubTreeNum = pos - inorderStart;
+        TreeNode* root = new TreeNode(inorder[pos]);
+        root->left = myBuildTree(preorder,inorder,preorderStart + 1, preorderStart + leftSubTreeNum, inorderStart, pos - 1);
+        root->right = myBuildTree(preorder,inorder, preorderStart + leftSubTreeNum + 1, preorderEnd, pos + 1, inorderEnd);
+        return root;
+    }
+public:
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        return myBuildTree(preorder, inorder,0,preorder.size() - 1, 0, inorder.size() - 1);
+    }
+};
+```
+
+
+
+#### 直接做法的优化
+
+find的时间复杂度为$O(n)$，可以进一步优化为哈希表查询，时间复杂度改为$O(1)$
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    TreeNode* myBuildTree(vector<int>& preorder, vector<int>& inorder, int preorderStart, int preorderEnd, int inorderStart, int inorderEnd){
+        if(preorderStart > preorderEnd || inorderStart > inorderEnd)
+            return nullptr;
+        int pos = hashMap[preorder[preorderStart]];
+        int leftSubTreeNum = pos - inorderStart;
+        TreeNode* root = new TreeNode(inorder[pos]);
+        root->left = myBuildTree(preorder,inorder,preorderStart + 1, preorderStart + leftSubTreeNum, inorderStart, pos - 1);
+        root->right = myBuildTree(preorder,inorder, preorderStart + leftSubTreeNum + 1, preorderEnd, pos + 1, inorderEnd);
+        return root;
+    }
+public:
+    unordered_map<int, int> hashMap;
+    TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
+        for(int i = 0; i < inorder.size(); i++){
+            hashMap[inorder[i]] = i;
+        }
+        return myBuildTree(preorder, inorder,0,preorder.size() - 1, 0, inorder.size() - 1);
+    }
+};
+```
+
+时间复杂度：O(n)，其中 n 是树中的节点个数。
+
+空间复杂度：O(n)，除去返回的答案需要的 O(n) 空间之外，我们还需要使用 O(n) 的空间存储哈希映射，以及 O(h)（其中 h 是树的高度）的空间表示递归时栈空间。这里 h<n，所以总空间复杂度为 O(n)。
+
+
+
+#### 迭代
+
+待补充
+
+
+
+### 437 路径之和III
+
+#### 直接做法
+
+pathSum表示返回二叉树中任意节点为起点和为targetSum的路径数，注意：这里的任意节点包括：
+
+- 根节点
+- 根节点的直接子节点
+- **间接子节点**
+
+因此我们想到，遍历二叉树的每个节点，以这个节点为起点，计算和为targetSum的路径数，最后累加起来，就是结果
+
+遍历的方式有很多，以最简单的前序遍历为例
+
+那么我们的问题就变成了求解一个函数，这个函数负责计算以某个节点为起点，和为targetSum的路径数
+
+为此我们定义了一个函数rootSum
+
+- 该函数就是计算特定节点为起点的和为targetSum的路径数
+
+- 计算方法：
+
+  1. 如果当前节点root值为targetSum，表示我们找到了目标节点，路径数加一
+  2. 如果当前节点root值不为targetSum，那么我们需要继续遍历当前节点的左子树和右子树，直到找到满足题意的路径
+     - 如果左/右子树存在节点node，使得root->n1->n2->...->node的和为targetSum，那么路径数加一
+
+  由于节点的值可以为负数，因此情况1和情况2可以同时成立，因此结果应该是两种情况的和
+
+现在我们已经定义了函数rootSum，那么pathSum也就可以实现了：
+
+- 本质是遍历二叉树，这里我们采用了前序遍历
+  - 处理每个节点后，遍历它的左子树和右子树
+- 处理每个节点的方式：以每个节点作为起点，计算每个节点为起点的和为targetSum的路径数，即计算rootSum
+
+
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    // 计算以某个节点为起点的路径数
+    // root->n1->n2->...->node
+    int rootSum(TreeNode* root, long targetSum){
+        if(!root)
+            return 0;
+        int res = 0;
+        // 如果当前节点值为targetSum
+        if(root->val == targetSum)
+            res++;
+        // 如果当前节点值不为targetSum
+        // 由于我们已经假设root一定包含在路径中
+        // 因此之后寻找路径需要更新targetSum
+        res += rootSum(root->left, targetSum - root->val);
+        res += rootSum(root->right, targetSum - root->val);
+        return res;
+    }
+public:
+    // 注意数据范围，使用long
+    int pathSum(TreeNode* root, long targetSum) {
+        if(!root)
+            return 0;
+        int res = 0;
+        // 前序遍历框架
+        res += rootSum(root, targetSum);
+        // 路径不需要从根节点开始
+        // 每个节点都可以是路径的起点
+        // 因此每次调用pathSum都是同样的targetSum
+        res += pathSum(root->left, targetSum);
+        res += pathSum(root->right, targetSum);
+        return res;
+    }
+};
+```
+
+时间复杂度：$O(N^2)$，其中 N 为该二叉树节点的个数。对于每一个节点，求以该节点为起点的路径数目时，则需要遍历以该节点为根节点的子树的所有节点，因此求该路径所花费的最大时间为 O(N)，我们会对每个节点都求一次以该节点为起点的路径数目，因此时间复杂度为 $O(N^2)$
+
+空间复杂度：O(N)，考虑到递归需要在栈上开辟空间。
+
+
+
+#### 优化做法
+
+以每个节点为起点计算路径数，会包含很多重复的路径，例如：
+
+1. n1->n2->...->n7->n8
+2. n2->...->n7
+
+假设这两条路径都符合和为targetSum，那么计算路径1会包含路径2的步骤，重复了路径2的计算
+
+针对这种情况，我们可以联想到数组中的前缀和，问题在于二叉树如何实现前缀和。我们发现**从根节点到叶子节点这条路径其实就对应一个数组**，那么我们只需要将问题分解为每条根节点到叶子结点这条路径如何求解即可，再将最后结果累加
+
+- 在深度优先遍历中，我们知道，遍历到叶子节点时会回溯，那么从根节点到叶子节点这条路径中，有多少条以某个节点为起点和为targetSum的路径数。在直接做法中，通过对每个节点求一次rootSum。在优化做法中，维护前缀和+哈希表避免重复计算
+- 当节点回溯时，路径更新，因此哈希表也需要更新（哈希表去掉回溯节点对应前缀和的标记）
+
+```C++
+/**
+ * Definition for a binary tree node.
+ * struct TreeNode {
+ *     int val;
+ *     TreeNode *left;
+ *     TreeNode *right;
+ *     TreeNode() : val(0), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+ *     TreeNode(int x, TreeNode *left, TreeNode *right) : val(x), left(left), right(right) {}
+ * };
+ */
+class Solution {
+private:
+    unordered_map<long,int> hashMap;
+    int dfs(TreeNode* root, long pre, long targetSum){
+        if(!root)
+            return 0;
+        // 前序遍历
+        pre += root->val;
+        int res = 0;
+        // sum[i] - sum[j - 1] == targetSum
+        // -> sum[j - 1] == sum[i] - targetSum 
+        if(hashMap.count(pre - targetSum))
+            res += hashMap[pre - targetSum];
+
+        // 为什么要恢复现场
+        // 因为遍历完当前节点会回溯，回溯意味着这条路径的和pre不存在
+        hashMap[pre]++;
+        res += dfs(root->left, pre, targetSum);
+        res += dfs(root->right, pre, targetSum);
+        hashMap[pre]--;
+        return res;
+    }
+public:
+    int pathSum(TreeNode* root, long targetSum) {
+        if(!root)
+            return 0;
+        hashMap[0] = 1;
+        // 只需要遍历一次二叉树
+        return dfs(root, 0,targetSum);
+    }
+};
+```
+
+**复杂度分析**
+
+- 时间复杂度：*O*(*N*)，其中 *N* 为二叉树中节点的个数。利用前缀和只需遍历一次二叉树即可。
+- 空间复杂度：*O*(*N*)
+
+#### 总结
+
+直接做法和优化做法本质上都是遍历一遍二叉树，遍历方式采用了前序遍历，区别在于如何处理根节点
+
+- 处理根节点：计算根节点到叶子节点和为targetSum的路径数
+
+  - 直接做法：以根节点到叶子节点这条路径中的每个节点作为起点，计算该起点和为targetSum的路径数
+
+    - 类比于数组中
+
+      ```C++
+      for(int i = 0; i < n; i++){
+      		int sum = 0;
+      		for(int j = i; j < n; j++){
+            	sum += nums[j];
+      				if(sum == targetSum)
+      						cnt++;
+      		}
+      }
+      ```
+
+      因此直接做法还需要再遍历一次子树的所有节点，即再采用一次前序遍历
+
+      
+
+  - 优化做法：以根节点到叶子节点这条路径，使用前缀和 + 哈希表，只需遍历一次路径即可得到和为targetSum的路径数
+
+    - 类比于数组中
+
+      ```C++
+      for(int i = 0; i < n; i++){
+      		pre += nums[i];
+      		if(hashMap.count(pre - targetSum)){
+      				cnt += hashMap[pre - targetSum];
+      		}
+      		hashMap[pre - targetSum]++;
+      }
+      ```
+
+- 遍历左子树 + 遍历右子树
+
+  - 唯一需要注意的是，优化做法中，由于回溯，哈希表需要删除回溯元素
 
 ## 贪心
 
@@ -4706,68 +5583,9 @@ public:
 
 
 
-## 39 组合总和II
-
-```C++
-class Solution {
-private:
-    vector<int> res;
-    vector<vector<int>> ans;
-    void dfs(const vector<int>& candidates, vector<int>& res, int target,
-             int index) {
-        if (index == candidates.size()) {
-            return;
-        }
-        if (target == 0) {
-            ans.push_back(res);
-            return;
-        }
-        // 不选这个数
-        dfs(candidates, res, target, index + 1);
-        // 选这个数
-        if (candidates[index] <= target) {
-            res.push_back(candidates[index]);
-            dfs(candidates, res, target - candidates[index], index);
-            res.pop_back();
-        }
-    }
-
-public:
-    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
-        dfs(candidates, res, target, 0);
-        return ans;
-    }
-};
-```
 
 
 
-
-
-## 46 全排列
-
-```C++
-class Solution {
-private:
-    vector<vector<int>> ans;
-    void dfs(vector<int>& nums,int idx){
-        if(idx == nums.size() - 1){
-            ans.push_back(nums);
-            return;
-        } 
-        for(int i = idx; i < nums.size(); i++){
-            swap(nums[i], nums[idx]);
-            dfs(nums, idx + 1);
-            swap(nums[i], nums[idx]);
-        }
-    }
-public:
-    vector<vector<int>> permute(vector<int>& nums) {
-        dfs(nums, 0);
-        return ans;
-    }
-};
-```
 
 
 
@@ -4941,6 +5759,44 @@ public:
 };
 ```
 
+
+
+### 39 组合总和II
+
+```C++
+class Solution {
+private:
+    vector<int> res;
+    vector<vector<int>> ans;
+    void dfs(const vector<int>& candidates, vector<int>& res, int target,
+             int index) {
+        if (index == candidates.size()) {
+            return;
+        }
+        if (target == 0) {
+            ans.push_back(res);
+            return;
+        }
+        // 不选这个数
+        dfs(candidates, res, target, index + 1);
+        // 选这个数
+        if (candidates[index] <= target) {
+            res.push_back(candidates[index]);
+            dfs(candidates, res, target - candidates[index], index);
+            res.pop_back();
+        }
+    }
+
+public:
+    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+        dfs(candidates, res, target, 0);
+        return ans;
+    }
+};
+```
+
+
+
 ### 216 组合总和III
 
 在77 组合基础上加了限制条件，不仅需要k个元素的组合，而且该组合之和为n
@@ -4975,6 +5831,61 @@ private:
 public:
     vector<vector<int>> combinationSum3(int k, int n) {
         dfs(k, n, 1);
+        return ans;
+    }
+};
+```
+
+
+
+### 46 全排列
+
+#### 写法一
+
+```C++
+class Solution {
+private:
+    void dfs(vector<int> &nums, int start, vector<int> &path,vector<vector<int>> &ans){
+        if(path.size() == nums.size())
+            ans.push_back(path);
+        for(int i = start; i < nums.size(); i++){
+            path.push_back(nums[i]);
+            swap(nums[start], nums[i]);
+            dfs(nums, start + 1, path, ans);
+            swap(nums[start], nums[i]);
+            path.pop_back();
+        }
+    }
+public:
+    vector<vector<int>> permute(vector<int>& nums) {
+        vector<vector<int>> ans;
+        vector<int> path;
+        dfs(nums,0,path,ans);
+        return ans;
+    }
+};
+```
+
+#### 写法二
+
+```C++
+class Solution {
+private:
+    vector<vector<int>> ans;
+    void dfs(vector<int>& nums,int idx){
+        if(idx == nums.size() - 1){
+            ans.push_back(nums);
+            return;
+        } 
+        for(int i = idx; i < nums.size(); i++){
+            swap(nums[i], nums[idx]);
+            dfs(nums, idx + 1);
+            swap(nums[i], nums[idx]);
+        }
+    }
+public:
+    vector<vector<int>> permute(vector<int>& nums) {
+        dfs(nums, 0);
         return ans;
     }
 };
@@ -5028,9 +5939,9 @@ public:
 
 
 
-## 78 子集
+### 78 子集
 
-### 迭代法
+#### 迭代法
 
 用二进制表示每个幂集，第i位为1表示选择第i个元素，那么总共有2^n - 1个状态
 
@@ -5064,7 +5975,7 @@ public:
 
 
 
-### 递归法
+#### 递归法
 
 用idx记录当前遍历到第几个元素，分类讨论：
 
