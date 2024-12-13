@@ -31,10 +31,9 @@ nav:
     - 后端开发: 
       - MySQL: software_development/backend/MySQL.md
       - Redis: software_development/backend/Redis.md
-      - 中间件:
-        - Kafka
-        - Tomcat
-        - Nginx
+      - Kafka: software_development/backend/Kafka.md
+      - 消息队列: software_development/backend/MessageQueue.md
+      - 分布式系统
       - DevOps:
         - Docker: software_development/backend/DevOps/Docker.md
         - k8s
